@@ -2,6 +2,7 @@
 using CourseFlow.Data;
 using CourseFlow.Repositories;
 using CourseFlow.Services;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseFlow
@@ -24,7 +25,10 @@ namespace CourseFlow
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ICourseService, CourseService>();
 
             var app = builder.Build();
 
