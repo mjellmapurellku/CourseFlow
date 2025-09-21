@@ -1,13 +1,13 @@
-﻿//using CourseFlow.Models;
+﻿using CourseFlow.Models;
 
-//namespace CourseFlow.Services
-//{
-//    public interface IEnrollmentService
-//    {
-//        Task<IEnumerable<Enrollment>> GetAllEnrollments();
-//        Task<Enrollment> GetEnrollmentById(int id);
-//        Task<Enrollment> CreateEnrollment(Enrollment enrollment);
-//        Task<Enrollment> UpdateEnrollment(int id, Enrollment enrollment);
-//        Task<bool> DeleteEnrollment(int id);
-//    }
-//}
+namespace CourseFlow.Services
+{
+    public interface IEnrollmentService
+    {
+        Task<IEnumerable<Enrollment>> GetAllEnrollments();
+        Task<Enrollment> GetEnrollmentById(int id);
+        Task<Enrollment> CreateEnrollment(Enrollment enrollment);
+        Task<Enrollment> UpdateEnrollment(int id, Enrollment enrollment);
+        Task<bool> DeleteEnrollment(int id);
+    }
+}
