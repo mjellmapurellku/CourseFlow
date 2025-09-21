@@ -1,0 +1,22 @@
+﻿# Visual Studio
+.vs/
+*.vscode/
+*.user
+*.suo
+
+# Build folders
+bin/
+obj/
+Debug/
+Release/
+
+# Logs
+*.log
+
+# React/Node
+client/node_modules/
+npm-debug.log
+yarn-error.log
+
+# Others
+*.db
