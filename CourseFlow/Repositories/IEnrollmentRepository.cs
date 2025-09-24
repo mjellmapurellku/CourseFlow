@@ -2,12 +2,9 @@
 
 namespace CourseFlow.Repositories
 {
-    public interface IEnrollmentRepository
+    public interface IEnrollmentRepository : IRepository<Enrollment>
     {
-        Task<IEnumerable<Enrollment>> GetAllSync();
-        Task<Enrollment> GetByIdSync(int id);
-        Task AddAsync(Enrollment enrollment);
-        Task UpdateAsync(Enrollment enrollment);
-        Task DeleteAsync(int id);
+        Task<IEnumerable<Enrollment>> GetByUserIdAsync(int userId);
+        Task<IEnumerable<Enrollment>> GetByCourseIdAsync(int courseId);
     }
 }

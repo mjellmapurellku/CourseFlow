@@ -4,44 +4,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CourseFlow.Repositories
 {
-    public class EnrollmentRepository : IEnrollmentRepository
+    public class EnrollmentRepository : Repository<Enrollment>, IEnrollmentRepository
     {
 
         private readonly AppDbContext _context;
 
-        public EnrollmentRepository(AppDbContext context)
+        public EnrollmentRepository(AppDbContext context) : base(context) 
         {
             _context = context;
         }
 
-
-        public async Task<IEnumerable<Enrollment>> GetAllSync()
-            => await _context.Enrollments.ToListAsync();
-
-        public async Task<Enrollment> GetByIdSync(int id)
-            => await _context.Enrollments.FindAsync(id);
-
-        public async Task AddAsync(Enrollment enrollment)
+        public async Task<IEnumerable<Enrollment>> GetByUserIdAsync(int userId)
         {
-            _context.Enrollments.Add(enrollment);
-            await _context.SaveChangesAsync();
+            return await _context.Enrollments
+                .Where(e => e.UserId == userId)
+                .Include(e => e.Course)
+                .ToListAsync();
         }
 
-        public async Task UpdateAsync(Enrollment enrollment)
+        public async Task<IEnumerable<Enrollment>> GetByCourseIdAsync(int courseId)
         {
-            _context.Enrollments.Update(enrollment);
-            await _context.SaveChangesAsync();
+            return await _context.Enrollments
+                .Where(e => e.CourseId == courseId)
+                .Include(e => e.User)
+                .ToListAsync();
         }
 
-        public async Task DeleteAsync(int id)
-        {
-            var enrollment = await _context.Enrollments.FindAsync(id);
-
-            if (enrollment != null)
-            {
-                _context.Enrollments.Remove(enrollment);
-                await _context.SaveChangesAsync();
-            }
-        }
     }
 }
