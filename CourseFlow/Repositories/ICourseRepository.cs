@@ -2,12 +2,9 @@
 
 namespace CourseFlow.Repositories
 {
-    public interface ICourseRepository
+    public interface ICourseRepository : IRepository<Course>
     {
-        Task<IEnumerable<Course>> GetAllAsync();
-        Task<Course?> GetByIdAsync(int id);
-        Task<Course> AddAsync(Course course);
-        Task<Course?> UpdateAsync(Course course);
-        Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<Course>> GetByCategoryAsync(string category);
+        Task<IEnumerable<Course>> GetByInstructorIdAsync(int instructorId);
     }
 }
