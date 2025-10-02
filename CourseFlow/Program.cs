@@ -1,5 +1,6 @@
 ﻿
 using CourseFlow.Data;
+using CourseFlow.Exceptions;
 using CourseFlow.Repositories;
 using CourseFlow.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -76,6 +77,8 @@ namespace CourseFlow
             app.UseAuthorization();
 
             app.MapControllers();
+            app.UseMiddleware<ExceptionMiddleware>();
+
 
             app.Run();
         }
