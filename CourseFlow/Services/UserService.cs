@@ -13,10 +13,10 @@ namespace CourseFlow.Services
         }
 
         public async Task<IEnumerable<User>> GetAllUsers()
-            => await _userRepository.GetAllSync();
+            => await _userRepository.GetAllAsync();
 
         public async Task<User> GetUserById(int id)
-            => await _userRepository.GetByIdSync(id);
+            => await _userRepository.GetByIdAsync(id);
 
         public async Task<User> CreateUser(User user)
         {
@@ -26,7 +26,7 @@ namespace CourseFlow.Services
 
         public async Task<User> UpdateUser(int id, User user)
         {
-            var existing = await _userRepository.GetByIdSync(id);
+            var existing = await _userRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
             existing.FullName = user.FullName;
@@ -39,10 +39,10 @@ namespace CourseFlow.Services
 
         public async Task<bool> DeleteUser(int id)
         {
-            var existing = await _userRepository.GetByIdSync(id);
+            var existing = await _userRepository.GetByIdAsync(id);
             if (existing == null) return false;
 
-            await _userRepository.DeleteAsync(id);  
+            await _userRepository.DeleteAsync(existing);  
             return true;
         }
     }

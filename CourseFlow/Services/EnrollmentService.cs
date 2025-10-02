@@ -12,10 +12,10 @@ namespace CourseFlow.Services
             _enrollmentRepository = enrollmentRepository;
         }
         public async Task<IEnumerable<Enrollment>> GetAllEnrollments()
-          => await _enrollmentRepository.GetAllSync();
+          => await _enrollmentRepository.GetAllAsync();
 
         public async Task<Enrollment> GetEnrollmentById(int id)
-            => await _enrollmentRepository.GetByIdSync(id);
+            => await _enrollmentRepository.GetByIdAsync(id);
 
         public async Task<Enrollment> CreateEnrollment(Enrollment enrollment)
         {
@@ -25,7 +25,7 @@ namespace CourseFlow.Services
 
         public async Task<Enrollment> UpdateEnrollment(int id, Enrollment enrollment)
         {
-            var existing = await _enrollmentRepository.GetByIdSync(id);
+            var existing = await _enrollmentRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
             existing.UserId = enrollment.UserId;
@@ -39,10 +39,10 @@ namespace CourseFlow.Services
 
         public async Task<bool> DeleteEnrollment(int id)
         {
-            var existing = await _enrollmentRepository.GetByIdSync(id);
+            var existing = await _enrollmentRepository.GetByIdAsync(id);
             if (existing == null) return false;
 
-            await _enrollmentRepository.DeleteAsync(id);
+            await _enrollmentRepository.DeleteAsync(existing);
             return true;
         }
     }
