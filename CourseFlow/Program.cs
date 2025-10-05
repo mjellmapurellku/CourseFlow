@@ -1,8 +1,7 @@
-﻿
-using CourseFlow.Data;
-using CourseFlow.Exceptions;
-using CourseFlow.Repositories;
-using CourseFlow.Services;
+﻿using CourseFlow.backend.Data;
+using CourseFlow.backend.Exceptions;
+using CourseFlow.backend.Repositories;
+using CourseFlow.backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +60,20 @@ namespace CourseFlow
                 c.EnableAnnotations();
             });
 
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:3000") // frontend
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -77,7 +90,13 @@ namespace CourseFlow
             app.UseAuthorization();
 
             app.MapControllers();
+
             app.UseMiddleware<ExceptionMiddleware>();
+
+            app.UseDefaultFiles();   // Kërkon index.html automatikisht
+
+            app.UseStaticFiles();    // Shërben file-t statike nga wwwroot
+
 
 
             app.Run();
