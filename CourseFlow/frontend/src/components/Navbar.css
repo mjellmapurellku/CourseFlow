@@ -1,0 +1,210 @@
+.navbar {
+  background: linear-gradient(135deg, #f9fafb, #eef2f7);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 14px 0;
+  font-family: "Poppins", sans-serif;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  transition: background 0.3s ease;
+}
+
+.navbar-container {
+  width: 88%;
+  max-width: 1250px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* LOGO */
+.navbar-logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.navbar-logo:hover {
+  color: #2563eb;
+}
+
+/* LINKS */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 40px;
+  margin: 0;
+  padding: 0;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.navbar-links li a {
+  text-decoration: none;
+  color: #334155;
+  font-weight: 500;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.navbar-links li a:hover {
+  color: #2563eb;
+}
+
+.navbar-links li a.active {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.navbar-links li a.active::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: #2563eb;
+  bottom: -4px;
+  left: 0;
+  border-radius: 2px;
+}
+
+/* RIGHT SIDE BUTTONS */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* DARK MODE BUTTON */
+.dark-mode-toggle {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.dark-mode-toggle:hover {
+  background-color: #1e40af;
+  transform: scale(1.05);
+}
+
+/* LOGIN / SIGNUP BUTTONS */
+.login-btn {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #e2e8f0;
+}
+
+.signup-btn {
+  text-decoration: none;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.signup-btn:hover {
+  background-color: #1e40af;
+  transform: scale(1.05);
+}
+
+/* DARK MODE */
+body.dark-mode {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+body.dark-mode .navbar {
+  background: #1e293b;
+}
+
+body.dark-mode .navbar-logo {
+  color: #f1f5f9;
+}
+
+body.dark-mode .navbar-links li a {
+  color: #e2e8f0;
+}
+
+body.dark-mode .navbar-links li a.active {
+  color: #60a5fa;
+}
+
+body.dark-mode .dark-mode-toggle {
+  background-color: #475569;
+}
+
+body.dark-mode .login-btn {
+  color: #93c5fd;
+}
+
+body.dark-mode .signup-btn {
+  background-color: #3b82f6;
+}
+
+/* ====== RESPONSIVE ====== */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #1e293b;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.menu-toggle:hover {
+  color: #2563eb;
+}
+
+@media (max-width: 850px) {
+  .navbar-container {
+    width: 90%;
+  }
+
+  .navbar-links {
+    display: none;
+    flex-direction: column;
+    background: white;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    padding: 20px 0;
+    gap: 20px;
+    align-items: center;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .navbar-links.active {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .navbar-actions {
+    display: none;
+  }
+
+  body.dark-mode .navbar-links {
+    background: #1e293b;
+  }
+}

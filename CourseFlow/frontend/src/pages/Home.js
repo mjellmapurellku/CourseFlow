@@ -76,10 +76,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer">
+      
+      {/* <footer className="footer">
         <p>© 2025 CourseFlow | Learn smarter with AI</p>
-      </footer>
+      </footer> */}
     </div>
   );
 }
