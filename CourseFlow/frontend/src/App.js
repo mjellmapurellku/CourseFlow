@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Footer from "./components/Footer";
 import Navbar from "./components/NavBar";
+import About from "./pages/About";
+import Courses from "./pages/Courses";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -14,7 +18,6 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition">
-        {/* Navbar me dark mode toggle */}
         <Navbar />
 
         <div className="flex justify-end p-4">
@@ -26,13 +29,13 @@ function App() {
           </button>
         </div>
 
-        {/* Rrugët */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            {/* Këto shtohen më vonë */}
-            {/* <Route path="/login" element={<Login />} /> */}
-            {/* <Route path="/signup" element={<Signup />} /> */}
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </main>
 
