@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { FiMenu, FiX, FiSearch } from "react-icons/fi";
 import "./Navbar.css";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
-  // Dark Mode handler
+  // Handle scroll effect
   useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [darkMode]);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close menu when route changes
   useEffect(() => {
@@ -22,21 +23,13 @@ export default function Navbar() {
   }, [location]);
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-container">
         {/* LOGO */}
         <Link to="/" className="navbar-logo">
-          CourseFlow
+          <span className="logo-icon">📚</span>
+          <span className="logo-text">CourseFlow</span>
         </Link>
-
-        {/* MENU TOGGLE (MOBILE) */}
-        <button
-          className="menu-toggle"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle navigation"
-        >
-          ☰
-        </button>
 
         {/* LINKS */}
         <ul className={menuOpen ? "navbar-links active" : "navbar-links"}>
@@ -47,18 +40,18 @@ export default function Navbar() {
           </li>
           <li>
             <Link
-              to="/about"
-              className={location.pathname === "/about" ? "active" : ""}
-            >
-              About
-            </Link>
-          </li>
-          <li>
-            <Link
               to="/courses"
               className={location.pathname === "/courses" ? "active" : ""}
             >
               Courses
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/about"
+              className={location.pathname === "/about" ? "active" : ""}
+            >
+              About
             </Link>
           </li>
           <li>
@@ -73,20 +66,25 @@ export default function Navbar() {
 
         {/* RIGHT SIDE BUTTONS */}
         <div className="navbar-actions">
-         
+          <button className="search-btn" aria-label="Search">
+            <FiSearch />
+          </button>
           <Link to="/login" className="login-btn">
             Log In
           </Link>
           <Link to="/signup" className="signup-btn">
-            Sign Up
+            Get Started
           </Link>
-           <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="dark-mode-toggle"
-          >
-            {darkMode ? "☀️" : "🌙"}
-          </button>
         </div>
+
+        {/* MENU TOGGLE (MOBILE) */}
+        <button
+          className="menu-toggle"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle navigation"
+        >
+          {menuOpen ? <FiX /> : <FiMenu />}
+        </button>
       </div>
     </nav>
   );
