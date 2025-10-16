@@ -1,4 +1,4 @@
-﻿namespace CourseFlow.backend.Models.DTOs
+namespace CourseFlow.backend.Models.DTOs
 {
     public class TokenResponseDto
     {

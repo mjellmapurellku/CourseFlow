@@ -1,13 +1,14 @@
-﻿using CourseFlow.backend.Data;
+using CourseFlow.backend.Data;
 using CourseFlow.backend.Exceptions;
 using CourseFlow.backend.Repositories;
 using CourseFlow.backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.IdentityModel.Tokens.Experimental;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using CourseFlow.backend.Enums;
+using CourseFlow.backend.Models;
 
 namespace CourseFlow
 {
@@ -17,10 +18,11 @@ namespace CourseFlow
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //DBConnection
+            // DB Connection
             builder.Services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // ✅ JWT Authentication Setup
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -37,46 +39,63 @@ namespace CourseFlow
                     };
                 });
 
-            // Add services to the container.
+            // ✅ CORS Policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
+            // ✅ Register Dependencies
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ICourseRepository, CourseRepository>();
             builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
-
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ICourseService, CourseService>();
             builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
-            builder.Services.AddScoped<IRatingRepository, RatingRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
 
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.EnableAnnotations();
-            });
-
-            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                    policy =>
-                    {
-                        policy.WithOrigins("http://localhost:3000") // frontend
-                              .AllowAnyHeader()
-                              .AllowAnyMethod();
-                    });
-            });
-
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                if (!context.Users.Any(u => u.Role == UserRoles.Admin))
+                {
+                    var admin = new User
+                    {
+                        Email = "admin@gmail.com",
+                        Username = "Admin",
+                        Role = UserRoles.Admin
+                    };
+                    var hasher = new PasswordHasher<User>();
+                    admin.PasswordHash = hasher.HashPassword(admin, "Admin123");
+
+                    context.Users.Add(admin);
+                    context.SaveChanges();
+
+                    Console.WriteLine("✅ Admin user created successfully!");
+                    Console.WriteLine($"   Email: {admin.Email}");
+                    Console.WriteLine($"   Password: Admin123");
+                    Console.WriteLine($"   Role: {admin.Role}");
+                }
+                else
+                {
+                    Console.WriteLine("ℹ️ Admin user already exists in database");
+                }
+            }
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -84,20 +103,11 @@ namespace CourseFlow
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowFrontend");
             app.UseAuthentication();
-
             app.UseAuthorization();
-
             app.MapControllers();
-
             app.UseMiddleware<ExceptionMiddleware>();
-
-            app.UseDefaultFiles();   // Kërkon index.html automatikisht
-
-            app.UseStaticFiles();    // Shërben file-t statike nga wwwroot
-
-
 
             app.Run();
         }

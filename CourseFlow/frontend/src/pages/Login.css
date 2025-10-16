@@ -37,79 +37,46 @@
   border-radius: 5px;
 }
 
-.input-group {
+.login-box form {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-box input {
   background: #f2f2f2;
-  border-radius: 8px;
-  padding: 10px 15px;
-  margin-bottom: 18px;
-}
-
-.input-group .icon {
-  color: #777;
-  margin-right: 10px;
-  font-size: 1rem;
-}
-
-.input-group input {
   border: none;
   outline: none;
-  background: transparent;
+  border-radius: 8px;
+  padding: 12px 15px;
   width: 100%;
   font-size: 15px;
   color: #333;
+  box-sizing: border-box;
 }
 
-.forgot-password {
-  text-align: left;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 25px;
+.login-box input:focus {
+  background: #e8e8e8;
 }
 
-.forgot-password a {
-  color: #1e3a8a;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.forgot-password a:hover {
-  text-decoration: underline;
-  color: #1e293b;
-}
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
-}
-
-.btn {
-  width: 48%;
-  padding: 10px 0;
+.login-box .btn {
+  width: 100%;
+  padding: 12px 0;
   border: none;
   border-radius: 25px;
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
   transition: 0.3s ease;
+  margin-top: 10px;
 }
 
-.signup-btn {
-  background: #eaeaea;
-  color: #444;
-}
-
-.signup-btn:hover {
-  background: #d8d8d8;
-}
-
-.login-btn {
+.login-box .login-btn {
   background: #1e3a8a;
   color: #fff;
 }
 
-.login-btn:hover {
+.login-box .login-btn:hover {
   background: #1e293b;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);

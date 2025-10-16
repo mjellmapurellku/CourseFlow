@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
+using CourseFlow.backend.Data;
+using CourseFlow.backend.Enums;
+using CourseFlow.backend.Models;
+using CourseFlow.backend.Models.DTOs;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using Microsoft.Extensions.Logging; // 🔹 shtohet kjo
 using System.Security.Cryptography;
-using CourseFlow.backend.Data;
-using CourseFlow.backend.Models;
-using CourseFlow.backend.Models.DTOs;
+using System.Text;
 
 namespace CourseFlow.backend.Services
 {
@@ -16,114 +18,69 @@ namespace CourseFlow.backend.Services
     {
         private readonly AppDbContext context;
         private readonly IConfiguration configuration;
-        private readonly ILogger<AuthService> _logger; // 🔹 logger field
+        private readonly ILogger<AuthService> logger;
 
         public AuthService(AppDbContext context, IConfiguration configuration, ILogger<AuthService> logger)
         {
             this.context = context;
             this.configuration = configuration;
-            _logger = logger;
+            this.logger = logger;
         }
 
-        private async Task<User?> ValidateRefreshTokenAsync(int userId, string refreshToken)
+        public async Task<User?> RegisterAsync(UserDto request, UserRoles role = UserRoles.Student)
         {
-            var user = await context.Users.FindAsync(userId);
-            if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-            {
-                _logger.LogWarning("Invalid refresh token for UserId={UserId}", userId);
+            if (await context.Users.AnyAsync(u => u.Email == request.Email))
                 return null;
-            }
-            _logger.LogInformation("Valid refresh token for UserId={UserId}", userId);
-            return user;
-        }
 
-        public async Task<TokenResponseDto?> RefreshTokenAsync(RefreshTokenRequestDto request)
-        {
-            _logger.LogInformation("Refresh token attempt for UserId={UserId}", request.Id);
-
-            var user = await ValidateRefreshTokenAsync(request.Id, request.RefreshToken);
-            if (user == null)
+            var user = new User
             {
-                _logger.LogWarning("Refresh token failed for UserId={UserId}", request.Id);
-                return null;
-            }
+                Email = request.Email,
+                Username = request.Username ?? request.Email,
+                Role = role
+            };
 
-            return await CreateTokenResponse(user);
-        }
+            var hasher = new PasswordHasher<User>();
+            user.PasswordHash = hasher.HashPassword(user, request.Password);
 
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber); // 🔹 mungonte kjo te versioni yt
-            return Convert.ToBase64String(randomNumber);
-        }
-
-        public async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
-        {
-            var refreshToken = GenerateRefreshToken();
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            context.Users.Add(user);
             await context.SaveChangesAsync();
-
-            _logger.LogInformation("Generated new refresh token for UserId={UserId}", user.Id);
-
-            return refreshToken;
+            return user;
         }
 
         public async Task<TokenResponseDto?> LoginAsync(UserDto request)
         {
-            _logger.LogInformation("Login attempt for Email={Email}", request.Email);
+            logger.LogInformation($"Login attempt for email: {request.Email}");
 
             var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-            if (user is null)
+            if (user == null)
             {
-                _logger.LogWarning("Login failed: User not found for Email={Email}", request.Email);
+                logger.LogWarning($"User not found with email: {request.Email}");
                 return null;
             }
 
-            if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password)
-                 == PasswordVerificationResult.Failed)
+            logger.LogInformation($"User found: {user.Email}, Role: {user.Role}");
+
+            var result = new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            if (result == PasswordVerificationResult.Failed)
             {
-                _logger.LogWarning("Login failed: Invalid password for Email={Email}", request.Email);
+                logger.LogWarning($"Password verification failed for user: {request.Email}");
                 return null;
             }
 
-            _logger.LogInformation("Login successful for UserId={UserId}, Email={Email}", user.Id, user.Email);
+            logger.LogInformation($"Login successful for user: {request.Email}");
             return await CreateTokenResponse(user);
         }
 
         private async Task<TokenResponseDto> CreateTokenResponse(User user)
         {
+            var token = CreateToken(user);
+            var refreshToken = await GenerateAndSaveRefreshTokenAsync(user);
+
             return new TokenResponseDto
             {
-                AccessToken = CreateToken(user),
-                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+                AccessToken = token,
+                RefreshToken = refreshToken
             };
-        }
-
-        public async Task<User?> RegisterAsync(UserDto request)
-        {
-            _logger.LogInformation("Registration attempt for Email={Email}", request.Email);
-
-            if (await context.Users.AnyAsync(u => u.Email == request.Email))
-            {
-                _logger.LogWarning("Registration failed: Email already exists {Email}", request.Email);
-                return null;
-            }
-
-            var user = new User();
-            var hashedPsw = new PasswordHasher<User>()
-                .HashPassword(user, request.Password);
-
-            user.Email = request.Email;
-            user.PasswordHash = hashedPsw;
-
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
-
-            _logger.LogInformation("Registration successful for UserId={UserId}, Email={Email}", user.Id, user.Email);
-            return user;
         }
 
         private string CreateToken(User user)
@@ -132,25 +89,40 @@ namespace CourseFlow.backend.Services
             {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
+                new Claim(ClaimTypes.Role, user.Role.ToString("G")),
+                new Claim("role", user.Role.ToString("G")) // ✅ extra fallback claim
             };
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
-
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["AppSettings:Token"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
-            var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: configuration.GetValue<string>("AppSettings:Audience"),
+            var token = new JwtSecurityToken(
+                issuer: configuration["AppSettings:Issuer"],
+                audience: configuration["AppSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
             );
 
-            _logger.LogInformation("Generated JWT token for UserId={UserId}", user.Id);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
 
-            return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
+        {
+            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+            user.RefreshToken = token;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await context.SaveChangesAsync();
+            return token;
+        }
+
+        public async Task<TokenResponseDto?> RefreshTokenAsync(RefreshTokenRequestDto request)
+        {
+            var user = await context.Users.FindAsync(request.Id);
+            if (user == null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                return null;
+
+            return await CreateTokenResponse(user);
         }
     }
 }
