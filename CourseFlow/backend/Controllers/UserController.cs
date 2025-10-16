@@ -46,7 +46,5 @@ namespace CourseFlow.backend.Controllers
             if (!deleted) return NotFound();
             return NoContent();
         }
-
-
     }
 }
