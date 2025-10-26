@@ -1,5 +1,5 @@
-import { FiArrowRight, FiBook, FiClock, FiStar, FiUsers } from "react-icons/fi";
-import "./Home.css";
+import { FiArrowRight, FiClock, FiStar, FiUsers } from "react-icons/fi";
+import "../styles/Home.css";
 
 const courses = [
   { 
@@ -67,16 +67,7 @@ const courses = [
   }
 ];
 
-const categories = [
-  { name: "AI", icon: <FiBook />, count: 45 },
-  { name: "Programming", icon: <FiBook />, count: 67 },
-  { name: "Design", icon: <FiBook />, count: 32 },
-  { name: "Marketing", icon: <FiBook />, count: 28 },
-  { name: "Business", icon: <FiBook />, count: 39 },
-  { name: "Data Science", icon: <FiBook />, count: 51 },
-  { name: "Project Management", icon: <FiBook />, count: 24 },
-  { name: "Finance", icon: <FiBook />, count: 36 },
-];
+
 
 const getRecommendedCourses = (allCourses, interest = "AI") =>
   allCourses.filter(c => c.category === interest).slice(0, 4);
@@ -166,24 +157,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="categories-section">
-        <div className="section-header">
-          <h2>Explore Categories</h2>
-          <a href="#" className="view-all">View All</a>
-        </div>
-        <div className="categories-grid">
-          {categories.map((category) => (
-            <div key={category.name} className="category-card">
-              <div className="category-icon">
-                {category.icon}
-              </div>
-              <h3>{category.name}</h3>
-              <p>{category.count} Courses</p>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       {/* Recommended */}
       <section className="courses-section">

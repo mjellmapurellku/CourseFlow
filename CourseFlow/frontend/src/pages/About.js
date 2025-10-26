@@ -1,5 +1,5 @@
 import { FiAward, FiBook, FiTarget, FiUsers, FiZap } from "react-icons/fi";
-import "./About.css";
+import "../styles/About.css";
 
 export default function About() {
   const stats = [
