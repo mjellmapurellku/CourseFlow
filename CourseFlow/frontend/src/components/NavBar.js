@@ -1,12 +1,39 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { FiMenu, FiX, FiSearch } from "react-icons/fi";
+import { FiChevronDown, FiLogOut, FiMenu, FiSearch, FiX } from "react-icons/fi";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+
+const categories = [
+  { name: "AI", count: 45 },
+  { name: "Programming", count: 67 },
+  { name: "Design", count: 32 },
+  { name: "Marketing", count: 28 },
+  { name: "Business", count: 39 },
+  { name: "Data Science", count: 51 },
+  { name: "Project Management", count: 24 },
+  { name: "Finance", count: 36 },
+];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if user is logged in on component mount and when location changes
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    setIsLoggedIn(false);
+    navigate('/login');
+  };
 
   // Handle scroll effect
   useEffect(() => {
@@ -25,6 +52,31 @@ export default function Navbar() {
   return (
     <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-container">
+        {/* EXPLORE DROPDOWN */}
+        <div className="explore-dropdown">
+          <button 
+            className="explore-btn"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            Explore <FiChevronDown className={`dropdown-arrow ${dropdownOpen ? 'open' : ''}`} />
+          </button>
+          {dropdownOpen && (
+            <div className="dropdown-menu">
+              {categories.map((category) => (
+                <Link 
+                  key={category.name}
+                  to={`/courses?category=${category.name.toLowerCase()}`}
+                  className="dropdown-item"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  <span className="category-name">{category.name}</span>
+                  <span className="category-count">{category.count} courses</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* LOGO */}
         <Link to="/" className="navbar-logo">
           <span className="logo-icon">📚</span>
@@ -69,12 +121,20 @@ export default function Navbar() {
           <button className="search-btn" aria-label="Search">
             <FiSearch />
           </button>
-          <Link to="/login" className="login-btn">
-            Log In
-          </Link>
-          <Link to="/signup" className="signup-btn">
-            Get Started
-          </Link>
+          {isLoggedIn ? (
+            <button onClick={handleLogout} className="logout-btn">
+              <FiLogOut /> Logout
+            </button>
+          ) : (
+            <>
+              <Link to="/login" className="login-btn">
+                Log In
+              </Link>
+              <Link to="/signup" className="signup-btn">
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
 
         {/* MENU TOGGLE (MOBILE) */}

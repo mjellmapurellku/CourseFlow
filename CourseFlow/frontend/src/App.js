@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
 import Navbar from "./components/NavBar";
 import About from "./pages/About";
 import AdminDashboard from "./pages/AdminDashboard";
+import CourseDetails from "./pages/CourseDetails";
 import Courses from "./pages/Courses";
 import Home from "./pages/Home";
 import InstructorDashboard from "./pages/InstructorDashboard";
@@ -24,18 +25,25 @@ function RequireRole({ children, role }) {
   return children;
 }
 
-function App() {
+function AppContent() {
   const [darkMode, setDarkMode] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
-  return (
-    <Router>
-      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition">
-        <Navbar />
+  // ✅ Hide default navbar & footer on admin pages
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
+  return (
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition">
+
+      {/* ✅ Render Navbar only if NOT in admin routes */}
+      {!isAdminRoute && <Navbar />}
+
+      {/* ✅ Dark Mode Toggle (only show when not in admin route) */}
+      {!isAdminRoute && (
         <div className="flex justify-end p-4">
           <button
             onClick={() => setDarkMode(!darkMode)}
@@ -44,48 +52,61 @@ function App() {
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
         </div>
+      )}
 
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            
-            <Route
-              path="/admin-dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["Admin"]}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+      <main className="flex-grow">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/courses/:id" element={<CourseDetails />} />
 
-            <Route
-              path="/instructor-dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["Instructor"]}>
-                  <InstructorDashboard />
-                </ProtectedRoute>
-              }
-            />
+          {/* ✅ Admin Dashboard - No default navbar here */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/student-dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["Student"]}>
-                  <StudentDashboard />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </main>
+          {/* ✅ Instructor Dashboard */}
+          <Route
+            path="/instructor-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["Instructor"]}>
+                <InstructorDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Footer />
-      </div>
+          {/* ✅ Student Dashboard */}
+          <Route
+            path="/student-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["Student"]}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+
+      {/* ✅ Hide Footer in admin pages */}
+      {!isAdminRoute && <Footer />}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

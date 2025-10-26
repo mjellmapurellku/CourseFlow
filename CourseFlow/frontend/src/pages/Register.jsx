@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
-import "./Register.css";
+import "../styles/Register.css";
 
 const Register = () => {
   const [form, setForm] = useState({

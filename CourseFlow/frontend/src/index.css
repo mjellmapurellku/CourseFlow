@@ -12,3 +12,12 @@ code {
     monospace;
 }
 
+/* Hide navbar for admin dashboard */
+.admin-route .navbar {
+  display: none;
+}
+
+/* Ensure content takes full height */
+.admin-route .flex-grow {
+  padding-top: 0;
+}
