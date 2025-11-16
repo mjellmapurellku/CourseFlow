@@ -1,0 +1,42 @@
+/* Fix white button background issue */
+.sidebar button {
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+  text-align: left;
+  font-size: 1rem;
+  padding: 10px 15px;
+  border-radius: 8px;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.sidebar button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #4caf50;
+}
+
+.sidebar button.active {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+/* Make icons align properly */
+.sidebar button svg {
+  margin-right: 10px;
+  font-size: 1.1rem;
+}
+
+/* Keep logout button red and aligned */
+.logout-btn {
+  background-color: #e53935 !important;
+  color: #fff !important;
+  margin-top: auto;
+}
+
+.logout-btn:hover {
+  background-color: #c62828 !important;
+}

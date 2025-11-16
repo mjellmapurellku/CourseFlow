@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
-import { FiChevronDown, FiLogOut, FiMenu, FiSearch, FiX } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiChevronDown, FiLogOut, FiMenu, FiX } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+import NavbarSearch from "./NavbarSearch";
 
 const categories = [
-  { name: "AI", count: 45 },
-  { name: "Programming", count: 67 },
-  { name: "Design", count: 32 },
-  { name: "Marketing", count: 28 },
-  { name: "Business", count: 39 },
-  { name: "Data Science", count: 51 },
-  { name: "Project Management", count: 24 },
-  { name: "Finance", count: 36 },
+  { name: "AI" },
+  { name: "Programming" },
+  { name: "Design" },
+  { name: "Marketing" },
+  { name: "Business" },
+  { name: "Data Science" },
+  { name: "Project Management" },
+  { name: "Finance" },
 ];
 
 export default function Navbar() {
@@ -19,58 +20,91 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchRef = useRef(null);
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check if user is logged in on component mount and when location changes
+  // ✅ Check login state from either token or user
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    setIsLoggedIn(!!token || !!user);
   }, [location]);
 
+  // ✅ Listen for login/register updates
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem("token");
+      const user = localStorage.getItem("user");
+      setIsLoggedIn(!!token || !!user);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
     setIsLoggedIn(false);
-    navigate('/login');
+    navigate("/login");
   };
 
-  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close menu when route changes
+  useEffect(() => setMenuOpen(false), [location]);
+
   useEffect(() => {
-    setMenuOpen(false);
-  }, [location]);
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setOpenSearch(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim() !== "") {
+      navigate(`/courses?search=${encodeURIComponent(searchTerm)}`);
+      setSearchTerm("");
+      setOpenSearch(false);
+    }
+  };
 
   return (
     <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-container">
         {/* EXPLORE DROPDOWN */}
         <div className="explore-dropdown">
-          <button 
+          <button
             className="explore-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            Explore <FiChevronDown className={`dropdown-arrow ${dropdownOpen ? 'open' : ''}`} />
+            Explore{" "}
+            <FiChevronDown
+              className={`dropdown-arrow ${dropdownOpen ? "open" : ""}`}
+            />
           </button>
           {dropdownOpen && (
             <div className="dropdown-menu">
               {categories.map((category) => (
-                <Link 
+                <Link
                   key={category.name}
                   to={`/courses?category=${category.name.toLowerCase()}`}
                   className="dropdown-item"
                   onClick={() => setDropdownOpen(false)}
                 >
                   <span className="category-name">{category.name}</span>
-                  <span className="category-count">{category.count} courses</span>
                 </Link>
               ))}
             </div>
@@ -118,9 +152,11 @@ export default function Navbar() {
 
         {/* RIGHT SIDE BUTTONS */}
         <div className="navbar-actions">
-          <button className="search-btn" aria-label="Search">
-            <FiSearch />
-          </button>
+          <div className="navbar-search-container" ref={searchRef}>
+            <NavbarSearch />
+          </div>
+
+          {/* ✅ LOGIN / LOGOUT */}
           {isLoggedIn ? (
             <button onClick={handleLogout} className="logout-btn">
               <FiLogOut /> Logout
@@ -130,9 +166,12 @@ export default function Navbar() {
               <Link to="/login" className="login-btn">
                 Log In
               </Link>
-              <Link to="/signup" className="signup-btn">
+              <button
+                className="signup-btn"
+                onClick={() => navigate("/register")}
+              >
                 Get Started
-              </Link>
+              </button>
             </>
           )}
         </div>

@@ -34,10 +34,11 @@ namespace CourseFlow.backend.Services
 
             var user = new User
             {
+                FullName = request.FullName,
                 Email = request.Email,
                 Username = request.Username ?? request.Email,
                 Role = role
-            };
+            }; 
 
             var hasher = new PasswordHasher<User>();
             user.PasswordHash = hasher.HashPassword(user, request.Password);

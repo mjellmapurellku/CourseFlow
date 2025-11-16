@@ -22,7 +22,7 @@ namespace CourseFlow.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CourseFlow.Models.Course", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Course", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -38,6 +38,14 @@ namespace CourseFlow.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("InstructorId")
                         .HasColumnType("int");
 
@@ -45,7 +53,20 @@ namespace CourseFlow.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<double?>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("Students")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VideoUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -56,7 +77,7 @@ namespace CourseFlow.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Enrollment", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Enrollment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,21 +94,16 @@ namespace CourseFlow.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("UserId1");
-
                     b.ToTable("Enrollments");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Rating", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Rating", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -111,21 +127,16 @@ namespace CourseFlow.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("UserId1");
-
                     b.ToTable("Ratings");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Recommendation", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Recommendation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -151,7 +162,7 @@ namespace CourseFlow.Migrations
                     b.ToTable("Recommendations");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.User", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -191,75 +202,67 @@ namespace CourseFlow.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Course", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Course", b =>
                 {
-                    b.HasOne("CourseFlow.Models.User", "Instructor")
+                    b.HasOne("CourseFlow.backend.Models.User", "Instructor")
                         .WithMany()
                         .HasForeignKey("InstructorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Instructor");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Enrollment", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Enrollment", b =>
                 {
-                    b.HasOne("CourseFlow.Models.Course", "Course")
+                    b.HasOne("CourseFlow.backend.Models.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CourseFlow.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CourseFlow.Models.User", null)
+                    b.HasOne("CourseFlow.backend.Models.User", "User")
                         .WithMany("Enrollments")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Course");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Rating", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Rating", b =>
                 {
-                    b.HasOne("CourseFlow.Models.Course", "Course")
+                    b.HasOne("CourseFlow.backend.Models.Course", "Course")
                         .WithMany("Ratings")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CourseFlow.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CourseFlow.Models.User", null)
+                    b.HasOne("CourseFlow.backend.Models.User", "User")
                         .WithMany("Ratings")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Course");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Recommendation", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Recommendation", b =>
                 {
-                    b.HasOne("CourseFlow.Models.Course", "Course")
+                    b.HasOne("CourseFlow.backend.Models.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CourseFlow.Models.User", "User")
+                    b.HasOne("CourseFlow.backend.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Course");
@@ -267,14 +270,14 @@ namespace CourseFlow.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.Course", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.Course", b =>
                 {
                     b.Navigation("Enrollments");
 
                     b.Navigation("Ratings");
                 });
 
-            modelBuilder.Entity("CourseFlow.Models.User", b =>
+            modelBuilder.Entity("CourseFlow.backend.Models.User", b =>
                 {
                     b.Navigation("Enrollments");
 

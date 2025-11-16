@@ -1,6 +1,10 @@
-﻿using CourseFlow.backend.Models;
+﻿using CourseFlow.backend.Enums;
+using CourseFlow.backend.Models;
+using CourseFlow.backend.Models.DTOs;
 using CourseFlow.backend.Repositories;
-using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Crypto.Generators;
+using BC = BCrypt.Net.BCrypt;
+
 
 namespace CourseFlow.backend.Services
 {
@@ -36,15 +40,36 @@ namespace CourseFlow.backend.Services
             return user;
         }
 
-        public async Task<User> CreateUser(User user)
+        public async Task<User> CreateUser(UserDto userDto)
         {
-            _logger.LogInformation("Creating new user with Email = {Email}", user.Email);
+            _logger.LogInformation("Creating new user with Email = {Email}", userDto.Email);
+
+            // Try to parse Role from DTO; fallback to Student
+            UserRoles role = UserRoles.Student;
+            if (!string.IsNullOrEmpty(userDto.Role))
+            {
+                if (!Enum.TryParse(userDto.Role, true, out role))
+                {
+                    _logger.LogWarning("Invalid role '{Role}' provided. Defaulting to Student.", userDto.Role);
+                    role = UserRoles.Student;
+                }
+            }
+
+            var user = new User
+            {
+                FullName = userDto.FullName,
+                Email = userDto.Email,
+                Username = userDto.Username,
+                PasswordHash = BC.HashPassword(userDto.Password),
+                Role = role
+            };
+
             await _userRepository.AddAsync(user);
             _logger.LogInformation("User with Id = {Id} created successfully", user.Id);
+
             return user;
         }
-
-        public async Task<User> UpdateUser(int id, User user)
+        public async Task<User?> UpdateUser(int id, UpdateUserDto dto)
         {
             _logger.LogInformation("Updating user with Id = {Id}", id);
 
@@ -55,12 +80,27 @@ namespace CourseFlow.backend.Services
                 return null;
             }
 
-            existing.FullName = user.FullName;
-            existing.Email = user.Email;
-            existing.PasswordHash = user.PasswordHash;
+            existing.FullName = dto.FullName;
+            existing.Email = dto.Email;
+            existing.Username = dto.Username;
+
+            if (Enum.TryParse<UserRoles>(dto.Role, true, out var parsedRole))
+            {
+                existing.Role = parsedRole;
+            }
+            else
+            {
+                _logger.LogWarning("Invalid role '{Role}' provided for user {Id}", dto.Role, id);
+            }
+
+            if (!string.IsNullOrEmpty(dto.PasswordHash))
+            {
+                existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.PasswordHash);
+            }
 
             await _userRepository.UpdateAsync(existing);
             _logger.LogInformation("User with Id = {Id} updated successfully", id);
+
             return existing;
         }
 

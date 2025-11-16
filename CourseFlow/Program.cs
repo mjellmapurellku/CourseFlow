@@ -44,7 +44,7 @@ namespace CourseFlow
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000")
+                    policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
@@ -60,6 +60,7 @@ namespace CourseFlow
             builder.Services.AddScoped<ICourseService, CourseService>();
             builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<DataSeeder>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

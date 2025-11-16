@@ -1,4 +1,5 @@
 ﻿using CourseFlow.backend.Models;
+using CourseFlow.backend.Models.DTOs;
 
 namespace CourseFlow.backend.Services
 {
@@ -6,8 +7,8 @@ namespace CourseFlow.backend.Services
     {
         Task<IEnumerable<User>> GetAllUsers();
         Task<User> GetUserById(int id);
-        Task<User> CreateUser(User user);
-        Task<User> UpdateUser(int id, User user);
+        Task<User> CreateUser(UserDto user);
+        Task<User> UpdateUser(int id, UpdateUserDto user);
         Task<bool> DeleteUser(int id);
     }
 }

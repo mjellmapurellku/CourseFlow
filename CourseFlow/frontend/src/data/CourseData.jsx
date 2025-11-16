@@ -9,7 +9,7 @@ export const allCourses = [
     duration: "8h 30m",
     price: 49.99,
     level: "Beginner",
-    image: "https://source.unsplash.com/random/300x200?ai,technology",
+    image: "https://img.youtube.com/vi/VGFpV3Qj4as/hqdefault.jpg",
     videoUrl: "https://youtu.be/VGFpV3Qj4as?si=PBsyDUtOKuusva85"
   },
   { 
@@ -21,7 +21,7 @@ export const allCourses = [
     duration: "12h 15m",
     price: 59.99,
     level: "Intermediate",
-    image: "https://source.unsplash.com/random/300x200?react,programming",
+    image: "https://img.youtube.com/vi/TtPXvEcE11E/hqdefault.jpg",
     videoUrl: "https://youtu.be/TtPXvEcE11E?si=JYXDZIauux1Yuhio"
   },
   { 
@@ -33,7 +33,7 @@ export const allCourses = [
     duration: "6h 45m",
     price: 39.99,
     level: "Beginner",
-    image: "https://source.unsplash.com/random/300x200?design,ui",
+    image: "https://img.youtube.com/vi/NeUEctMZ6_g/hqdefault.jpg",
     videoUrl: "https://youtu.be/NeUEctMZ6_g?si=oz5rltNXNnbfY0nB"
   },
   { 
@@ -45,7 +45,7 @@ export const allCourses = [
     duration: "10h 20m",
     price: 69.99,
     level: "Advanced",
-    image: "https://source.unsplash.com/random/300x200?machine,learning",
+    image: "https://img.youtube.com/vi/i_LwzRVP7bg/hqdefault.jpg",
     videoUrl: "https://youtu.be/i_LwzRVP7bg?si=lCfpnBNdtwlrAlTZ"
   },
   { 
@@ -57,7 +57,7 @@ export const allCourses = [
     duration: "7h 15m",
     price: 44.99,
     level: "Intermediate",
-    image: "https://source.unsplash.com/random/300x200?marketing",
+    image: "https://img.youtube.com/vi/QIQYzi7IPGk/hqdefault.jpg",
     videoUrl:"https://youtu.be/QIQYzi7IPGk?si=-eSHOcZmiUd2DdcV"
   },
   { 
@@ -69,7 +69,7 @@ export const allCourses = [
     duration: "9h 10m",
     price: 54.99,
     level: "Intermediate",
-    image: "https://source.unsplash.com/random/300x200?business,strategy",
+    image: "https://img.youtube.com/vi/9VlvbpXwLJs/hqdefault.jpg",
     videoUrl: "https://youtu.be/9VlvbpXwLJs?si=8JbCsfONou_w_wy8"
   },
   { 
@@ -81,7 +81,7 @@ export const allCourses = [
     duration: "11h 30m",
     price: 79.99,
     level: "Advanced",
-    image: "https://source.unsplash.com/random/300x200?deep,learning",
+    image: "https://img.youtube.com/vi/VyWAvY2CF9c/hqdefault.jpg",
     videoUrl: "https://youtu.be/VyWAvY2CF9c?si=f-22J4v9bZNKKu-M"
   },
   { 
@@ -93,7 +93,7 @@ export const allCourses = [
     duration: "15h 45m",
     price: 64.99,
     level: "Beginner",
-    image: "https://source.unsplash.com/random/300x200?python,code",
+    image: "https://img.youtube.com/vi/K5KVEU3aaeQ/hqdefault.jpg",
     videoUrl: "https://youtu.be/K5KVEU3aaeQ?si=dmT2IXoVXlOtnc1C"
   },
   { 
@@ -105,7 +105,7 @@ export const allCourses = [
     duration: "13h 20m",
     price: 74.99,
     level: "Intermediate",
-    image: "https://source.unsplash.com/random/300x200?data,science",
+    image: "https://img.youtube.com/vi/esPfw_wya6E/hqdefault.jpg",
     videoUrl: "https://www.youtube.com/live/esPfw_wya6E?si=cXDnGNvyknl2KJvK"
   },
   { 
@@ -117,7 +117,7 @@ export const allCourses = [
     duration: "10h 30m",
     price: 54.99,
     level: "Advanced",
-    image: "https://source.unsplash.com/random/300x200?javascript",
+    image: "https://img.youtube.com/vi/R9I85RhI7Cg/hqdefault.jpg",
     videoUrl: "https://youtu.be/R9I85RhI7Cg?si=eOq7I0Kirxe11OKC"
   },
   { 
@@ -141,7 +141,7 @@ export const allCourses = [
     duration: "9h 40m",
     price: 49.99,
     level: "Intermediate",
-    image: "https://source.unsplash.com/random/300x200?digital,marketing",
+    image: "https://img.youtube.com/vi/jVgYgN0zcWs/hqdefault.jpg",
     videoUrl: "https://youtu.be/jVgYgN0zcWs?si=zpe__0TZDEF9xxly"
   },
 ];
