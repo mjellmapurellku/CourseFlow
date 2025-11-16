@@ -18,26 +18,52 @@ namespace CourseFlow.backend.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Për Enrollments
+            modelBuilder.Entity<Course>()
+                .HasOne(c => c.Instructor)
+                .WithMany() 
+                .HasForeignKey(c => c.InstructorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.User)
-                .WithMany()
+                .WithMany(u => u.Enrollments)
                 .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Për Ratings
+            modelBuilder.Entity<Enrollment>()
+                .HasOne(e => e.Course)
+                .WithMany(c => c.Enrollments)
+                .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Rating>()
                 .HasOne(r => r.User)
-                .WithMany()
+                .WithMany(u => u.Ratings)
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Për Recommendations
+            modelBuilder.Entity<Rating>()
+                .HasOne(r => r.Course)
+                .WithMany(c => c.Ratings)
+                .HasForeignKey(r => r.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Recommendation>()
                 .HasOne(r => r.User)
                 .WithMany()
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Recommendation>()
+                .HasOne(r => r.Course)
+                .WithMany()
+                .HasForeignKey(r => r.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Course>()
+                .Property(c => c.Price)
+                .HasColumnType("decimal(10,2)");
         }
+
     }
 }

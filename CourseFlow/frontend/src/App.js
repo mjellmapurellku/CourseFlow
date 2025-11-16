@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
-import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+import AdminDashboard from "./components/AdminDashboard";
 import Footer from "./components/Footer";
 import Navbar from "./components/NavBar";
 import About from "./pages/About";
-import AdminDashboard from "./pages/AdminDashboard";
 import CourseDetails from "./pages/CourseDetails";
+import CoursesPage from "./pages/CoursePage";
 import Courses from "./pages/Courses";
 import Home from "./pages/Home";
-import InstructorDashboard from "./pages/InstructorDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import StudentDashboard from "./pages/StudentDashboard";
 import Unauthorized from "./pages/Unauthorized";
+import UsersPage from "./pages/UsersPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function RequireRole({ children, role }) {
@@ -38,7 +44,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition">
-
       {/* ✅ Render Navbar only if NOT in admin routes */}
       {!isAdminRoute && <Navbar />}
 
@@ -65,7 +70,7 @@ function AppContent() {
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
 
-          {/* ✅ Admin Dashboard - No default navbar here */}
+          {/* ✅ Admin Routes */}
           <Route
             path="/admin/dashboard"
             element={
@@ -74,23 +79,19 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-
-          {/* ✅ Instructor Dashboard */}
           <Route
-            path="/instructor-dashboard"
+            path="/admin/users"
             element={
-              <ProtectedRoute allowedRoles={["Instructor"]}>
-                <InstructorDashboard />
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <UsersPage />
               </ProtectedRoute>
             }
           />
-
-          {/* ✅ Student Dashboard */}
           <Route
-            path="/student-dashboard"
+            path="/admin/courses"
             element={
-              <ProtectedRoute allowedRoles={["Student"]}>
-                <StudentDashboard />
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <CoursesPage />
               </ProtectedRoute>
             }
           />

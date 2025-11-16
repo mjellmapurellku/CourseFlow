@@ -1,4 +1,5 @@
 ﻿using CourseFlow.backend.Models;
+using CourseFlow.backend.Models.DTOs;
 using CourseFlow.backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,11 +29,11 @@ namespace CourseFlow.backend.Controllers
         }
 
         [HttpPost]
-        public  async Task<ActionResult<User>> CreateUser(User user)
+        public async Task<ActionResult<User>> CreateUser(UserDto user)
              => Ok(await _userService.CreateUser(user));
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, User user)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto user)
         {
             var updated = await _userService.UpdateUser(id, user);
             if (updated == null) return NotFound();
@@ -48,3 +49,4 @@ namespace CourseFlow.backend.Controllers
         }
     }
 }
+

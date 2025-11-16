@@ -1,14 +1,14 @@
 /* Course Details - Modern Premium Design */
 @import './variables.css';
 
-.course-details {
+#course-details-container {
   background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
   min-height: 100vh;
   padding: 60px 40px;
   color: #1a1a1a;
 }
 
-.course-header {
+#course-details-container .course-header {
   max-width: 1200px;
   margin: 0 auto 60px;
   text-align: center;
@@ -31,7 +31,7 @@
   animation: fadeIn 1s ease-out 0.2s backwards;
 }
 
-.course-title {
+#course-details-container .course-title {
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 800;
   color: #0a0a0a;
@@ -41,7 +41,7 @@
   animation: fadeIn 1s ease-out 0.3s backwards;
 }
 
-.course-subtitle {
+#course-details-container .course-subtitle {
   font-size: clamp(1.1rem, 2vw, 1.25rem);
   color: #666;
   max-width: 700px;
@@ -51,7 +51,7 @@
   animation: fadeIn 1s ease-out 0.4s backwards;
 }
 
-.course-content {
+#course-details-container .course-content {
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
@@ -202,7 +202,7 @@
   margin-bottom: 32px;
 }
 
-.course-meta {
+#course-details-container .course-meta {
   background: #f8f8f8;
   padding: 24px;
   border-radius: 16px;
@@ -226,7 +226,7 @@
   padding-top: 0;
 }
 
-.meta-icon {
+#course-details-container .meta-icon {
   font-size: 1.5rem;
   filter: grayscale(0.2);
 }
@@ -250,7 +250,7 @@
   font-weight: 600;
 }
 
-.enroll-btn {
+#course-details-container .enroll-btn {
   width: 100%;
   padding: 18px 32px;
   background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
@@ -428,7 +428,7 @@
 }
 
 @media (max-width: 768px) {
-  .course-details {
+  #course-details-container {
     padding: 40px 20px;
   }
 
@@ -457,14 +457,14 @@
     font-size: 1.5rem;
   }
 
-  .enroll-btn {
+  #course-details-container .enroll-btn {
     font-size: 1rem;
     padding: 16px 28px;
   }
 }
 
 @media (max-width: 480px) {
-  .course-details {
+  #course-details-container {
     padding: 30px 16px;
   }
 

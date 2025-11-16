@@ -10,7 +10,7 @@ function CourseDetails() {
   };
 
   return (
-    <div className="course-details">
+    <div id="course-details-container" className="course-details">
       <div className="course-header">
         <div className="header-badge">Featured Course</div>
         <h1 className="course-title">

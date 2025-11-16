@@ -59,7 +59,7 @@ export default function Courses() {
   );
 
   return (
-    <div className="courses-page">
+    <div id="courses-page-container" className="courses-page">
       {/* Hero Section */}
       <section className="courses-hero">
         <div className="courses-hero-content">
