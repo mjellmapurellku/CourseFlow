@@ -76,5 +76,22 @@ namespace CourseFlow.backend.Services
             _logger.LogInformation("Enrollment with id {EnrollmentId} deleted successfully", id);
             return true;
         }
+        public async Task<bool> ExistsAsync(int userId, int courseId)
+        {
+            var enrollments = await _enrollmentRepository.GetByUserIdAsync(userId);
+            return enrollments.Any(e => e.CourseId == courseId);
+        }
+
+        public async Task<IEnumerable<Enrollment>> GetByUserIdAsync(int userId)
+        {
+            return await _enrollmentRepository.GetByUserIdAsync(userId);
+        }
+
+        public async Task<Enrollment?> GetByUserAndCourseAsync(int userId, int courseId)
+        {
+            var list = await _enrollmentRepository.GetByUserIdAsync(userId);
+            return list.FirstOrDefault(e => e.CourseId == courseId);
+        }
+
     }
 }

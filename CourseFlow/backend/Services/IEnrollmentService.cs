@@ -9,5 +9,8 @@ namespace CourseFlow.backend.Services
         Task<Enrollment> CreateEnrollment(Enrollment enrollment);
         Task<Enrollment> UpdateEnrollment(int id, Enrollment enrollment);
         Task<bool> DeleteEnrollment(int id);
+        Task<bool> ExistsAsync(int userId, int courseId);
+        Task<IEnumerable<Enrollment>> GetByUserIdAsync(int userId);
+        Task<Enrollment?> GetByUserAndCourseAsync(int userId, int courseId);
     }
 }
