@@ -19,20 +19,56 @@ namespace CourseFlow.backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
-            => Ok(await _courseService.GetAllCourses());
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourseById(int id)
+        public async Task<ActionResult<IEnumerable<CourseCreateDto>>> GetCourses()
         {
-            var course = await _courseService.GetCourseById(id);
-            if (course == null) return NotFound();
-            return Ok(course);
+            var courses = await _courseService.GetAllCourses();
+
+            var dtos = courses.Select(c => new CourseCreateDto
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Description = c.Description,
+                Category = c.Category,
+                Level = c.Level,
+                Rating = c.Rating,
+                Students = c.Students,
+                Duration = c.Duration,
+                Price = c.Price,
+                Image = c.Image,
+                VideoUrl = c.VideoUrl,
+                InstructorId = c.InstructorId
+            });
+
+            return Ok(dtos);
         }
 
-        // CREATE COURSE
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CourseCreateDto>> GetCourseById(int id)
+        {
+            var c = await _courseService.GetCourseById(id);
+            if (c == null) return NotFound();
+
+            var dto = new CourseCreateDto
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Description = c.Description,
+                Category = c.Category,
+                Level = c.Level,
+                Rating = c.Rating,
+                Students = c.Students,
+                Duration = c.Duration,
+                Price = c.Price,
+                Image = c.Image,
+                VideoUrl = c.VideoUrl,
+                InstructorId = c.InstructorId
+            };
+
+            return Ok(dto);
+        }
+
         [HttpPost]
-        public async Task<ActionResult<Course>> CreateCourse([FromBody] CourseCreateDto dto)
+        public async Task<ActionResult<CourseCreateDto>> CreateCourse([FromBody] CourseCreateDto dto)
         {
             if (dto == null)
                 return BadRequest("Invalid course data");
@@ -46,16 +82,31 @@ namespace CourseFlow.backend.Controllers
                 InstructorId = dto.InstructorId,
                 Duration = dto.Duration,
                 Price = dto.Price,
-                Image = dto.Image,      
-                VideoUrl = dto.VideoUrl 
+                Image = dto.Image,
+                VideoUrl = dto.VideoUrl
             };
 
             var created = await _courseService.CreateCourse(course);
-            return Ok(created);
+
+            var response = new CourseCreateDto
+            {
+                Id = created.Id,
+                Title = created.Title,
+                Description = created.Description,
+                Category = created.Category,
+                Level = created.Level,
+                Rating = created.Rating,
+                Students = created.Students,
+                Duration = created.Duration,
+                Price = created.Price,
+                Image = created.Image,
+                VideoUrl = created.VideoUrl,
+                InstructorId = created.InstructorId
+            };
+
+            return Ok(response);
         }
 
-
-        // UPDATE COURSE
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCourse(int id, [FromBody] CourseCreateDto dto)
         {
@@ -74,9 +125,8 @@ namespace CourseFlow.backend.Controllers
 
             await _courseService.UpdateCourse(id, existing);
 
-            return Ok(existing);
+            return Ok("Course updated successfully.");
         }
-
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteCourse(int id)
@@ -84,24 +134,6 @@ namespace CourseFlow.backend.Controllers
             var deleted = await _courseService.DeleteCourse(id);
             if (!deleted) return NotFound();
             return NoContent();
-        }
-
-        // SAVE IMAGE
-        private async Task<string> SaveImage(IFormFile file)
-        {
-            var uploadsFolder = Path.Combine(_env.WebRootPath
-                ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
-
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-                await file.CopyToAsync(stream);
-
-            return $"/uploads/{fileName}";
         }
     }
 }

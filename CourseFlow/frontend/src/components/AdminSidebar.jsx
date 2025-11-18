@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { FaBars, FaBook, FaCog, FaSignOutAlt, FaTachometerAlt, FaUsers } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "../styles/AdminSidebar.css";
 
 function AdminSidebar({ onSelectSection }) {
   const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    console.log("Logging out...");
+    // 🔥 Remove stored auth
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // 🔥 Redirect to homepage
+    navigate("/");
   };
 
   return (
     <aside className="sidebar">
-      {/* Logo & Toggle */}
       <div className="logo">
         {isOpen ? (
           <>
@@ -37,7 +43,6 @@ function AdminSidebar({ onSelectSection }) {
         <FaBars />
       </button>
 
-      {/* Sidebar Sections */}
       <div className="sidebar-section">
         <p className="sidebar-title">MAIN</p>
 
@@ -62,7 +67,6 @@ function AdminSidebar({ onSelectSection }) {
         </button>
       </div>
 
-      {/* Logout button at bottom */}
       <div style={{ marginTop: "auto" }}>
         <button onClick={handleLogout} className="logout-btn">
           <FaSignOutAlt style={{ marginRight: "10px" }} />

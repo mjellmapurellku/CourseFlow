@@ -1,24 +1,76 @@
-import { useState } from "react";
-import { FiArrowRight, FiBook, FiClock, FiFilter, FiSearch, FiStar, FiUsers } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import {
+  FiArrowRight,
+  FiBook,
+  FiClock,
+  FiFilter,
+  FiSearch,
+  FiStar,
+  FiUsers,
+} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { allCourses } from "../data/CourseData";
+import { getCourses } from "../services/api";
 import "../styles/Courses.css";
-
-const categories = ["All", "AI", "Programming", "Design", "Marketing", "Business", "Data Science"];
-const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 
 export default function Courses() {
   const navigate = useNavigate();
+
+  const [allCourses, setAllCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All Levels");
   const [sortBy, setSortBy] = useState("popular");
 
-  const filteredCourses = allCourses
-    .filter(course => {
-      const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === "All" || course.category === selectedCategory;
-      const matchesLevel = selectedLevel === "All Levels" || course.level === selectedLevel;
+  const [categories, setCategories] = useState(["All"]); // dynamic
+  const [levels, setLevels] = useState(["All Levels"]); // dynamic
+
+  // 🔥 GET COURSES FROM BACKEND
+  useEffect(() => {
+    getCourses()
+      .then((res) => {
+        console.log("COURSES FROM BACKEND:", res.data);
+
+        const coursesArray = Array.isArray(res.data)
+          ? res.data
+          : res.data?.data || [];
+
+        setAllCourses(coursesArray);
+
+        // 🔥 extract categories dynamically
+        const uniqueCategories = [
+          "All",
+          ...new Set(coursesArray.map((c) => c.category).filter(Boolean)),
+        ];
+        setCategories(uniqueCategories);
+
+        // 🔥 extract levels dynamically
+        const uniqueLevels = [
+          "All Levels",
+          ...new Set(coursesArray.map((c) => c.level).filter(Boolean)),
+        ];
+        setLevels(uniqueLevels);
+      })
+      .catch((err) => console.error("COURSE FETCH ERROR:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const safeCourses = Array.isArray(allCourses) ? allCourses : [];
+
+  // 🔎 FILTER + SORT COURSES
+  const filteredCourses = safeCourses
+    .filter((course) => {
+      const matchesSearch = course.title
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      const matchesCategory =
+        selectedCategory === "All" || course.category === selectedCategory;
+
+      const matchesLevel =
+        selectedLevel === "All Levels" || course.level === selectedLevel;
+
       return matchesSearch && matchesCategory && matchesLevel;
     })
     .sort((a, b) => {
@@ -29,45 +81,57 @@ export default function Courses() {
       return 0;
     });
 
-   const renderCourseCard = (course) => (
+  const renderCourseCard = (course) => (
     <div key={course.id} className="course-card">
-      <div 
-        className="course-image" 
-        style={{ 
-          backgroundImage: course.image ? `url(${course.image})` : 'none',
-          backgroundColor: course.image ? 'transparent' : '#f0f0f0'
-        }}
-        onError={(e) => {
-          // Nëse thumbnail nuk shfaqet, heqim background image
-          e.target.style.backgroundImage = 'none';
-          e.target.style.backgroundColor = '#f0f0f0';
+      <div
+        className="course-image"
+        style={{
+          backgroundImage: `url(${course.image || "/placeholder.jpg"})`,
         }}
       >
         <div className="course-rating">
           <FiStar className="star-icon" />
-          <span>{course.rating}</span>
+          <span>{course.rating || 0}</span>
         </div>
-        <div className="course-level">{course.level}</div>
+        <div className="course-level">{course.level || "N/A"}</div>
       </div>
+
       <div className="course-content">
         <span className="course-category">{course.category}</span>
         <h3>{course.title}</h3>
+
         <div className="course-meta">
-          <span><FiUsers className="meta-icon" /> {course.students.toLocaleString()}</span>
-          <span><FiClock className="meta-icon" /> {course.duration}</span>
+          <span>
+            <FiUsers className="meta-icon" /> {course.students || 0}
+          </span>
+          <span>
+            <FiClock className="meta-icon" /> {course.duration || "—"}
+          </span>
         </div>
+
         <div className="course-footer">
-          <div className="course-price">${course.price}</div>
-         <button 
-            className="enroll-btn"
-            onClick={() => navigate(`/courses/${course.id}`)} 
-        >         
-        Enroll <FiArrowRight className="arrow-icon" />
+          <div className="course-price">
+            {course.price ? `$${course.price}` : "Free"}
+          </div>
+
+         <button
+          className="enroll-btn"
+          onClick={() => navigate(`/courses/${course.id}`)}
+        >
+          Enroll <FiArrowRight className="arrow-icon" />
         </button>
+
         </div>
       </div>
     </div>
   );
+
+  if (loading)
+    return (
+      <div className="loading-courses">
+        <h3>Loading Courses...</h3>
+      </div>
+    );
 
   return (
     <div id="courses-page-container" className="courses-page">
@@ -79,7 +143,7 @@ export default function Courses() {
         </div>
       </section>
 
-      {/* Filters and Search */}
+      {/* Filters */}
       <section className="filters-section">
         <div className="filters-container">
           <div className="search-box">
@@ -93,39 +157,42 @@ export default function Courses() {
           </div>
 
           <div className="filter-controls">
+            {/* Categories */}
             <div className="filter-group">
               <FiFilter className="filter-icon" />
-              <select 
-                value={selectedCategory} 
+              <select
+                value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {categories.map((cat) => (
+                  <option key={cat}>{cat}</option>
                 ))}
               </select>
             </div>
 
+            {/* Levels */}
             <div className="filter-group">
               <FiBook className="filter-icon" />
-              <select 
-                value={selectedLevel} 
+              <select
+                value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
               >
-                {levels.map(level => (
-                  <option key={level} value={level}>{level}</option>
+                {levels.map((lvl) => (
+                  <option key={lvl}>{lvl}</option>
                 ))}
               </select>
             </div>
 
+            {/* Sort */}
             <div className="filter-group">
-              <select 
-                value={sortBy} 
+              <select
+                value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
                 <option value="popular">Most Popular</option>
                 <option value="rating">Highest Rated</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
+                <option value="price-low">Price: Low → High</option>
+                <option value="price-high">Price: High → Low</option>
               </select>
             </div>
           </div>
@@ -136,9 +203,11 @@ export default function Courses() {
       <section className="courses-results">
         <div className="results-header">
           <h2>
-            {filteredCourses.length} {filteredCourses.length === 1 ? 'Course' : 'Courses'} Found
+            {filteredCourses.length}{" "}
+            {filteredCourses.length === 1 ? "Course" : "Courses"} Found
           </h2>
         </div>
+
         <div className="courses-grid">
           {filteredCourses.length > 0 ? (
             filteredCourses.map(renderCourseCard)

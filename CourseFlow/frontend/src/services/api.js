@@ -20,3 +20,17 @@ export const createCourse = (data) => api.post("/course", data);
 export const updateCourse = (id, data) => api.put(`/course/${id}`, data);
 
 export const deleteCourse = (id) => api.delete(`/course/${id}`);
+export const getCourseById = (id) => api.get(`/course/${id}`);
+
+// ENROLLMENTS
+export const createEnrollment = (data) => api.post("/enrollment", data);
+
+export const updateEnrollment = (id, data) =>
+  api.put(`/enrollment/${id}`, data);
+
+export const getEnrollmentStatus = (userId, courseId) =>
+  api.get(`/enrollment/status/${userId}/${courseId}`);
+
+export const getEnrollmentsByUser = (userId) =>
+  api.get(`/enrollment/user/${userId}`);
+
