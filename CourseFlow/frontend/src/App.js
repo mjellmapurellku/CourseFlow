@@ -6,9 +6,11 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+
 import AdminDashboard from "./components/AdminDashboard";
 import Footer from "./components/Footer";
 import Navbar from "./components/NavBar";
+
 import About from "./pages/About";
 import CourseDetails from "./pages/CourseDetails";
 import CoursesPage from "./pages/CoursePage";
@@ -18,6 +20,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/UsersPage";
+
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function RequireRole({ children, role }) {
@@ -39,15 +42,15 @@ function AppContent() {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
-  // ✅ Hide default navbar & footer on admin pages
+  // Hide navbar & footer on admin pages
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition">
-      {/* ✅ Render Navbar only if NOT in admin routes */}
+      {/* Navbar (not on admin routes) */}
       {!isAdminRoute && <Navbar />}
 
-      {/* ✅ Dark Mode Toggle (only show when not in admin route) */}
+      {/* Dark mode toggle (not on admin routes) */}
       {!isAdminRoute && (
         <div className="flex justify-end p-4">
           <button
@@ -68,9 +71,11 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* ✅ Correct course details route */}
           <Route path="/courses/:id" element={<CourseDetails />} />
 
-          {/* ✅ Admin Routes */}
+          {/* Admin Routes */}
           <Route
             path="/admin/dashboard"
             element={
@@ -98,7 +103,7 @@ function AppContent() {
         </Routes>
       </main>
 
-      {/* ✅ Hide Footer in admin pages */}
+      {/* Footer (not on admin routes) */}
       {!isAdminRoute && <Footer />}
     </div>
   );

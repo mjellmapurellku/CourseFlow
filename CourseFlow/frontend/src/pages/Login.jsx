@@ -29,41 +29,59 @@ function Login() {
         return;
       }
 
-      // ✅ Store tokens
+      // Save tokens
       localStorage.setItem("token", token);
       if (refreshToken) {
         localStorage.setItem("refreshToken", refreshToken);
       }
 
-      // ✅ Decode Token
+      // Decode token
       const decoded = jwtDecode(token);
       console.log("Decoded Token Payload:", decoded);
 
-      // ✅ Extract Role Safely
+      // ----------- EXTRACT USER ID CORRECTLY ----------
+      const userId =
+        decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+        decoded["nameid"] ||
+        decoded["sub"] ||
+        null;
+
+      console.log("Extracted USER ID:", userId);
+
+      // ----------- EXTRACT ROLE ----------
       let role =
         decoded.role ||
         decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
         decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"];
 
       if (Array.isArray(role)) role = role[0];
-      if (!role) role = "User"; // Default fallback
+      if (!role) role = "User";
 
       console.log("Final Role:", role);
+
+      // ----------- SAVE CLEAN USER OBJECT ----------
+      const userObject = {
+        id: userId,
+        email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+        role,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userObject));
       localStorage.setItem("role", role);
 
-      // ✅ Redirect based on role
+      // ----------- REDIRECT ----------
       if (role === "Admin") {
         navigate("/admin/dashboard");
       } else if (role === "Instructor") {
         navigate("/instructor-dashboard");
       } else if (role === "Student") {
-        navigate("/Home");
+        navigate("/");
       } else {
         navigate("/");
       }
 
     } catch (err) {
-      console.error("Login error:", err);
+      console.error("Login error:", err.response?.data || err);
       setError("Invalid credentials. Please check your email or password.");
     }
   };

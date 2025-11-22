@@ -21,5 +21,7 @@ namespace CourseFlow.backend.Models
         public User? Instructor { get; set; } 
         public ICollection<Enrollment>? Enrollments { get; set; } 
         public ICollection<Rating>? Ratings { get; set; }
+        public ICollection<Lesson>? Lessons { get; set; }
+
     }
 }
