@@ -51,9 +51,9 @@ export default function Home() {
           </span>
         </div>
 
-        <button
+       <button
           className="enroll-btn"
-          onClick={() => navigate(`/course/${course.id}`)}
+          onClick={() => navigate(`/courses/${course.id}`)}
         >
           Enroll Now <FiArrowRight className="arrow-icon" />
         </button>

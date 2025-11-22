@@ -62,7 +62,9 @@ namespace CourseFlow
             builder.Services.AddScoped<ICourseService, CourseService>();
             builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<DataSeeder>();
+            builder.Services.AddScoped<ILessonRepository, LessonRepository>();
+            builder.Services.AddScoped<ILessonService, LessonService>();
+
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

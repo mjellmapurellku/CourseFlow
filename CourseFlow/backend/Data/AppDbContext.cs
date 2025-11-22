@@ -13,6 +13,7 @@ namespace CourseFlow.backend.Data
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Recommendation> Recommendations { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
