@@ -19,5 +19,6 @@ namespace CourseFlow.backend.Models
 
         public int Order { get; set; } 
         public bool IsCompleted { get; set; }
+        public bool IsFree { get; set; } = false;
     }
 }

@@ -1,5 +1,7 @@
-﻿using CourseFlow.backend.Models;
+﻿using CourseFlow.backend.Data;
+using CourseFlow.backend.Models;
 using CourseFlow.backend.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace CourseFlow.backend.Services
@@ -8,13 +10,16 @@ namespace CourseFlow.backend.Services
     {
         private readonly IEnrollmentRepository _enrollmentRepository;
         private readonly ILogger<EnrollmentService> _logger;
+        private readonly AppDbContext _db;   // <-- FIELD
 
         public EnrollmentService(
             IEnrollmentRepository enrollmentRepository,
-            ILogger<EnrollmentService> logger)
+            ILogger<EnrollmentService> logger,
+            AppDbContext db)                  // <-- INJECT HERE
         {
             _enrollmentRepository = enrollmentRepository;
             _logger = logger;
+            _db = db;                         // <-- ASSIGN HERE
         }
 
         public async Task<IEnumerable<Enrollment>> GetAllEnrollments()
@@ -25,57 +30,37 @@ namespace CourseFlow.backend.Services
 
         public async Task<Enrollment> GetEnrollmentById(int id)
         {
-            _logger.LogInformation("Fetching enrollment with id {EnrollmentId}", id);
             return await _enrollmentRepository.GetByIdAsync(id);
         }
 
         public async Task<Enrollment> CreateEnrollment(Enrollment enrollment)
         {
-            _logger.LogInformation("Creating new enrollment for UserId {UserId}, CourseId {CourseId}",
-                enrollment.UserId, enrollment.CourseId);
-
             await _enrollmentRepository.AddAsync(enrollment);
             return enrollment;
         }
 
         public async Task<Enrollment> UpdateEnrollment(int id, Enrollment enrollment)
         {
-            _logger.LogInformation("Updating enrollment with id {EnrollmentId}", id);
-
             var existing = await _enrollmentRepository.GetByIdAsync(id);
-            if (existing == null)
-            {
-                _logger.LogWarning("Enrollment with id {EnrollmentId} not found", id);
-                return null;
-            }
+            if (existing == null) return null;
 
             existing.UserId = enrollment.UserId;
             existing.CourseId = enrollment.CourseId;
             existing.EnrollmentDate = enrollment.EnrollmentDate;
 
             await _enrollmentRepository.UpdateAsync(existing);
-
-            _logger.LogInformation("Enrollment with id {EnrollmentId} updated successfully", id);
-
             return existing;
         }
 
         public async Task<bool> DeleteEnrollment(int id)
         {
-            _logger.LogInformation("Deleting enrollment with id {EnrollmentId}", id);
-
             var existing = await _enrollmentRepository.GetByIdAsync(id);
-            if (existing == null)
-            {
-                _logger.LogWarning("Enrollment with id {EnrollmentId} not found", id);
-                return false;
-            }
+            if (existing == null) return false;
 
             await _enrollmentRepository.DeleteAsync(existing);
-
-            _logger.LogInformation("Enrollment with id {EnrollmentId} deleted successfully", id);
             return true;
         }
+
         public async Task<bool> ExistsAsync(int userId, int courseId)
         {
             var enrollments = await _enrollmentRepository.GetByUserIdAsync(userId);
@@ -93,5 +78,18 @@ namespace CourseFlow.backend.Services
             return list.FirstOrDefault(e => e.CourseId == courseId);
         }
 
+        public async Task<Enrollment?> UpdateProgress(int userId, int courseId, int percent)
+        {
+            var enrollment = await _db.Enrollments
+                .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
+
+            if (enrollment == null)
+                return null;
+
+            enrollment.ProgressPercent = percent;
+            await _db.SaveChangesAsync();
+
+            return enrollment;
+        }
     }
 }

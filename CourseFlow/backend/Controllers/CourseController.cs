@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CourseFlow.backend.Data;
 using CourseFlow.backend.Models;
-using CourseFlow.backend.Services;
 using CourseFlow.backend.Models.DTOs;
+using CourseFlow.backend.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseFlow.backend.Controllers
 {
@@ -135,5 +137,17 @@ namespace CourseFlow.backend.Controllers
             if (!deleted) return NotFound();
             return NoContent();
         }
+
+        [HttpGet("{courseId}/lessons")]
+        public async Task<IActionResult> GetLessonsForCourse(int courseId, [FromServices] AppDbContext db)
+        {
+            var lessons = await db.Lessons
+                .Where(x => x.CourseId == courseId)
+                .OrderBy(x => x.Order)
+                .ToListAsync();
+
+            return Ok(lessons);
+        }
+
     }
 }

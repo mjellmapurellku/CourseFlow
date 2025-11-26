@@ -132,6 +132,16 @@
 .delete-btn:hover {
   background-color: #dc2626;
 }
+.manage-lessons-btn{
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
 
 /* ==================== POPUP OVERLAY ==================== */
 .overlay {

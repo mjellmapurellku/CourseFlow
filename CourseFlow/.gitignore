@@ -1,6 +1,6 @@
 ﻿# Visual Studio
 .vs/
-*.vscode/
+.vscode/
 *.user
 *.suo
 
@@ -14,9 +14,13 @@ Release/
 *.log
 
 # React/Node
-client/node_modules/
+node_modules/
 npm-debug.log
 yarn-error.log
 
-# Others
+# Databases
 *.db
+
+# System files
+Thumbs.db
+.DS_Store
