@@ -14,13 +14,14 @@ import Navbar from "./components/NavBar";
 import About from "./pages/About";
 import CourseDetails from "./pages/CourseDetails";
 import CoursesPage from "./pages/CoursePage";
+import CoursePlayer from "./pages/CoursePlayer";
 import Courses from "./pages/Courses";
 import Home from "./pages/Home";
+import LessonsPage from "./pages/LessonsPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/UsersPage";
-
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function RequireRole({ children, role }) {
@@ -71,9 +72,11 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-
-          {/* ✅ Correct course details route */}
           <Route path="/courses/:id" element={<CourseDetails />} />
+          <Route
+            path="/course-player/:courseId/:lessonId"
+            element={<CoursePlayer hideNavbar={true} hideFooter={true} />}
+          />
 
           {/* Admin Routes */}
           <Route
@@ -100,7 +103,16 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+           <Route
+            path="/admin/lessons"
+            element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <LessonsPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
+        
       </main>
 
       {/* Footer (not on admin routes) */}

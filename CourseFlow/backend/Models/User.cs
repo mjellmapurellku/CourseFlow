@@ -15,6 +15,9 @@ namespace CourseFlow.backend.Models
         public DateTime? RefreshTokenExpiryTime { get; set; } // JSON ose lista e interesave
         public ICollection<Enrollment>? Enrollments { get; set; } = new List<Enrollment>();
         public ICollection<Rating>? Ratings { get; set; } = new List<Rating>();
+        public DateTime? TrialStart { get; set; }
+        public DateTime? TrialEnd { get; set; }
+        public bool IsTrialActive { get; set; }
 
     }
 }

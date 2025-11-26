@@ -12,5 +12,6 @@ namespace CourseFlow.backend.Services
         Task<bool> ExistsAsync(int userId, int courseId);
         Task<IEnumerable<Enrollment>> GetByUserIdAsync(int userId);
         Task<Enrollment?> GetByUserAndCourseAsync(int userId, int courseId);
+        Task<Enrollment?> UpdateProgress(int userId, int courseId, int progressPercent);
     }
 }

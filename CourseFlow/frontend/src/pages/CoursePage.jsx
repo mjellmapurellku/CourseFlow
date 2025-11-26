@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
-import { FaBook, FaEdit, FaPlus, FaSearch, FaTrash } from "react-icons/fa";
+import {
+  FaBook,
+  FaEdit,
+  FaPlus,
+  FaSearch,
+  FaTrash
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 import {
   createCourse,
   deleteCourse,
   getCourses,
-  updateCourse,
+  updateCourse
 } from "../services/api";
+
 import "../styles/CoursePage.css";
 
-const CoursesPage = () => {
+export default function CoursesPage() {
   const [courses, setCourses] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -22,12 +33,9 @@ const CoursesPage = () => {
     price: "",
     level: "",
     image: "",
-    videoUrl: "",
+    videoUrl: ""
   });
 
-  // -------------------------
-  // LOAD COURSES
-  // -------------------------
   useEffect(() => {
     loadCourses();
   }, []);
@@ -41,22 +49,14 @@ const CoursesPage = () => {
     }
   };
 
-  // -------------------------
-  // EXTRACT YOUTUBE THUMBNAIL
-  // -------------------------
   const getYoutubeThumbnail = (url) => {
     if (!url) return "";
-
     const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
     if (!match) return "";
-
     const videoId = match[1];
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   };
 
-  // -------------------------
-  // SUBMIT FORM (JSON!)
-  // -------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -91,13 +91,10 @@ const CoursesPage = () => {
       loadCourses();
     } catch (err) {
       console.error("Error saving course:", err);
-      alert("Failed to save course. Check console.");
+      alert("Failed to save course.");
     }
   };
 
-  // -------------------------
-  // EDIT COURSE
-  // -------------------------
   const handleEdit = (course) => {
     setEditingId(course.id);
     setFormData({
@@ -114,9 +111,6 @@ const CoursesPage = () => {
     setShowForm(true);
   };
 
-  // -------------------------
-  // DELETE COURSE
-  // -------------------------
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
 
@@ -124,14 +118,11 @@ const CoursesPage = () => {
       await deleteCourse(id);
       setCourses(courses.filter((c) => c.id !== id));
     } catch (err) {
-      console.error("Error deleting course:", err);
+      console.error("Error deleting:", err);
       alert("Failed to delete course.");
     }
   };
 
-  // -------------------------
-  // ADD NEW COURSE
-  // -------------------------
   const handleAddNew = () => {
     setEditingId(null);
     setFormData({
@@ -149,13 +140,14 @@ const CoursesPage = () => {
   };
 
   return (
-    <div className={`admin-layout ${showForm ? "blurred" : ""}`}>
+    <div className="admin-layout">
       <div className="main-area">
         <main className="users-main-content">
           <h1 className="page-title">
             <FaBook /> Course Management
           </h1>
 
+          {/* Toolbar */}
           <div className="users-toolbar">
             <div className="users-search-bar">
               <FaSearch />
@@ -166,7 +158,7 @@ const CoursesPage = () => {
             </button>
           </div>
 
-          {/* ========================= COURSES TABLE ========================= */}
+          {/* Courses table */}
           <div className="courses-table">
             {courses.length > 0 ? (
               <table>
@@ -181,6 +173,7 @@ const CoursesPage = () => {
                     <th>Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {courses.map((course) => (
                     <tr key={course.id}>
@@ -190,6 +183,7 @@ const CoursesPage = () => {
                       <td>{course.duration}</td>
                       <td>${course.price}</td>
                       <td>{course.level}</td>
+
                       <td>
                         <button
                           className="edit-btn"
@@ -197,11 +191,22 @@ const CoursesPage = () => {
                         >
                           <FaEdit />
                         </button>
+
                         <button
                           className="delete-btn"
                           onClick={() => handleDelete(course.id)}
                         >
                           <FaTrash />
+                        </button>
+
+                        {/* Navigate to lessons */}
+                        <button
+                          className="manage-lessons-btn"
+                          onClick={() =>
+                            navigate(`/admin/lessons?courseId=${course.id}`)
+                          }
+                        >
+                          Lessons
                         </button>
                       </td>
                     </tr>
@@ -209,11 +214,11 @@ const CoursesPage = () => {
                 </tbody>
               </table>
             ) : (
-              <p className="no-courses">No courses available.</p>
+              <p>No courses found.</p>
             )}
           </div>
 
-          {/* ========================= POPUP FORM ========================= */}
+          {/* Popup form */}
           {showForm && (
             <div className="overlay">
               <div className="popup-form small-popup">
@@ -236,7 +241,10 @@ const CoursesPage = () => {
                     placeholder="Description"
                     value={formData.description}
                     onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
+                      setFormData({
+                        ...formData,
+                        description: e.target.value,
+                      })
                     }
                     required
                   />
@@ -257,7 +265,10 @@ const CoursesPage = () => {
                   <select
                     value={formData.category}
                     onChange={(e) =>
-                      setFormData({ ...formData, category: e.target.value })
+                      setFormData({
+                        ...formData,
+                        category: e.target.value,
+                      })
                     }
                     required
                   >
@@ -271,7 +282,7 @@ const CoursesPage = () => {
 
                   <input
                     type="text"
-                    placeholder="Duration (10h 30m)"
+                    placeholder="Duration (e.g. 10h 30m)"
                     value={formData.duration}
                     onChange={(e) =>
                       setFormData({ ...formData, duration: e.target.value })
@@ -311,7 +322,6 @@ const CoursesPage = () => {
                     }
                   />
 
-                  {/* AUTO THUMBNAIL PREVIEW */}
                   {formData.videoUrl && (
                     <img
                       src={getYoutubeThumbnail(formData.videoUrl)}
@@ -340,6 +350,4 @@ const CoursesPage = () => {
       </div>
     </div>
   );
-};
-
-export default CoursesPage;
+}
