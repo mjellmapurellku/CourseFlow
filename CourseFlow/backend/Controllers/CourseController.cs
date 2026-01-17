@@ -4,6 +4,7 @@ using CourseFlow.backend.Models.DTOs;
 using CourseFlow.backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace CourseFlow.backend.Controllers
 {
@@ -63,8 +64,16 @@ namespace CourseFlow.backend.Controllers
                 Price = c.Price,
                 Image = c.Image,
                 VideoUrl = c.VideoUrl,
-                InstructorId = c.InstructorId
-            };
+                InstructorId = c.InstructorId,
+                Lessons = c.Lessons?.OrderBy(l => l.Order)
+                         .Select(l => new LessonDto
+                        {
+                            Id = l.Id,
+                            Title = l.Title,
+                            VideoUrl = l.VideoUrl,
+                            Order = l.Order
+                        }).ToList()
+             };
 
             return Ok(dto);
         }

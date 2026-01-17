@@ -12,4 +12,6 @@
     public string Image { get; set; } = "";
     public string VideoUrl { get; set; } = "";
     public int InstructorId { get; set; }
+    public List<LessonDto>? Lessons { get; set; }
+
 }

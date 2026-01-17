@@ -1,14 +1,15 @@
 using CourseFlow.backend.Data;
+using CourseFlow.backend.Enums;
 using CourseFlow.backend.Exceptions;
+using CourseFlow.backend.Models;
 using CourseFlow.backend.Repositories;
 using CourseFlow.backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
-using CourseFlow.backend.Enums;
-using CourseFlow.backend.Models;
 
 namespace CourseFlow
 {
@@ -44,14 +45,12 @@ namespace CourseFlow
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000","https://localhost:3000","http://localhost:3001","https://localhost:3001")
+                    policy.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:3001", "https://localhost:3001")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
                 });
             });
-
-           
 
             // ✅ Register Dependencies
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -64,6 +63,7 @@ namespace CourseFlow
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ILessonRepository, LessonRepository>();
             builder.Services.AddScoped<ILessonService, LessonService>();
+            builder.Services.AddScoped<StripeBillingService>();
 
 
             builder.Services.AddControllers();

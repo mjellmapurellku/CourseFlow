@@ -1,25 +1,27 @@
 ﻿using CourseFlow.backend.Models;
 using CourseFlow.backend.Models.DTOs;
 using CourseFlow.backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
 public class EnrollmentController : ControllerBase
 {
     private readonly IEnrollmentService _enrollmentService;
+    private readonly StripeBillingService _stripeBillingService;
 
-    public EnrollmentController(IEnrollmentService enrollmentService)
+    public EnrollmentController(IEnrollmentService enrollmentService,StripeBillingService stripeBillingService)
     {
         _enrollmentService = enrollmentService;
+        _stripeBillingService = stripeBillingService;
     }
 
-    // GET: api/enrollment
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Enrollment>>> GetEnrollments()
         => Ok(await _enrollmentService.GetAllEnrollments());
 
-    // GET: api/enrollment/user/{userId}
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<IEnumerable<Enrollment>>> GetByUser(int userId)
     {
@@ -27,12 +29,15 @@ public class EnrollmentController : ControllerBase
         return Ok(items);
     }
 
-    // GET: api/enrollment/status?userId=1&courseId=2
     [HttpGet("status")]
-    public async Task<ActionResult> GetStatus([FromQuery] int userId, [FromQuery] int courseId)
+    public async Task<ActionResult> GetStatus([FromQuery] int userId,[FromQuery] int courseId)
     {
-        var enrollment = await _enrollmentService.GetByUserAndCourseAsync(userId, courseId);
-        if (enrollment == null) return NotFound();
+        var enrollment = await _enrollmentService
+            .GetByUserAndCourseAsync(userId, courseId);
+
+        if (enrollment == null || !enrollment.IsPaid)
+            return Forbid("Course not purchased");
+
         return Ok(new
         {
             enrollment.Id,
@@ -40,6 +45,7 @@ public class EnrollmentController : ControllerBase
             enrollment.CourseId,
             enrollment.EnrollmentDate,
             enrollment.ProgressPercent,
+            enrollment.CompletedLessons,
             Course = new
             {
                 enrollment.Course.Id,
@@ -50,40 +56,67 @@ public class EnrollmentController : ControllerBase
         });
     }
 
-    // POST: api/enrollment
-    [HttpPost]
-    public async Task<ActionResult<Enrollment>> CreateEnrollment([FromBody] EnrollmentDto dto)
+    [Authorize]
+    [Authorize]
+    [HttpPost("start-payment")]
+    public async Task<IActionResult> StartPayment([FromBody] CheckoutRequestDto dto)
     {
-        if (dto == null) return BadRequest();
+        if (dto == null)
+            return BadRequest("Invalid request");
 
-        // check existing
-        if (await _enrollmentService.ExistsAsync(dto.UserId, dto.CourseId))
-            return Conflict(new { message = "User is already enrolled in this course." });
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        var enrollment = new Enrollment
-        {
-            UserId = dto.UserId,
-            CourseId = dto.CourseId,
-            EnrollmentDate = DateTime.UtcNow,
-            ProgressPercent = dto.ProgressPercent 
-        };
+        if (await _enrollmentService.ExistsAsync(userId, dto.CourseId))
+            return Conflict(new { message = "Already enrolled" });
 
-        var created = await _enrollmentService.CreateEnrollment(enrollment);
+        var session = await _stripeBillingService.CreateCheckoutSession(
+            userId,
+            dto.CourseId,
+            dto.Email
+        );
 
-        // return created with small payload
-        return CreatedAtAction(nameof(GetStatus), new { userId = created.UserId, courseId = created.CourseId }, created);
+        return Ok(new { url = session.Url });
     }
 
-    // PUT: api/enrollment/{id} — update (e.g., progress)
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEnrollment(int id, [FromBody] Enrollment updated)
+
+    [HttpPost("complete-lesson")]
+    public async Task<IActionResult> CompleteLesson([FromQuery] int userId,[FromQuery] int courseId)
     {
-        var result = await _enrollmentService.UpdateEnrollment(id, updated);
+        var enrollment = await _enrollmentService
+            .GetByUserAndCourseAsync(userId, courseId);
+
+        if (enrollment == null || !enrollment.IsPaid)
+            return Forbid("Course not purchased");
+
+        var totalLessons = enrollment.Course.Lessons.Count;
+
+        if (enrollment.CompletedLessons < totalLessons)
+        {
+            enrollment.CompletedLessons++;
+            enrollment.ProgressPercent =
+                (int)((double)enrollment.CompletedLessons / totalLessons * 100);
+
+            await _enrollmentService
+                .UpdateEnrollment(enrollment.Id, enrollment);
+        }
+
+        return Ok(new
+        {
+            enrollment.CompletedLessons,
+            enrollment.ProgressPercent
+        });
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEnrollment(int id,[FromBody] Enrollment updated)
+    {
+        var result = await _enrollmentService
+            .UpdateEnrollment(id, updated);
+
         if (result == null) return NotFound();
         return Ok(result);
     }
 
-    // DELETE: api/enrollment/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEnrollment(int id)
     {

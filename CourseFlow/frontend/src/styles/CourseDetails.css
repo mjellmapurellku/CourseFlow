@@ -1,336 +1,371 @@
-/* ===========================
-   COURSE DETAILS PAGE
-=========================== */
-
-.course-details-page {
-  width: 100%;
-  min-height: 100vh;
-  background: #f8f9fb;
-  padding: 40px 0;
-  animation: fadeIn 0.3s ease;
-}
+/* Course Details Page Styles */
+@import './variables.css';
 
 /* ===========================
-   HEADER
+   COURSE DETAILS CONTAINER
 =========================== */
 
-.course-header {
-  max-width: 1200px;
-  margin: 0 auto 40px;
+.course-details-container {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0 20px;
-}
-
-.title-block h1 {
-  font-size: 2.4rem;
-  font-weight: 700;
-  margin: 0;
-  color: #1a1a1a;
-}
-
-.title-block .meta {
-  margin-top: 8px;
-  font-size: 0.95rem;
-  color: #666;
+  gap: 2rem;
+  padding: 3rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--bg);
+  min-height: calc(100vh - 80px);
 }
 
 /* ===========================
-   ENROLL CARD
+   LEFT COLUMN
 =========================== */
 
-.header-cta {
+.course-main {
+  flex: 2;
+}
+
+.course-main h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.course-description {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.6;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ===========================
+   VIDEO CONTAINER
+=========================== */
+
+.video-container {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+  height: 450px;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.video-container video,
+.video-container iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.locked-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.locked-video .video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 10;
+  backdrop-filter: blur(2px);
 }
 
-.enroll-card {
-  background: white;
-  padding: 20px 24px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-  width: 260px;
+.locked-video .video-overlay h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
   text-align: center;
 }
 
-.enroll-card .price {
-  font-size: 1.6rem;
+.locked-video .video-overlay .btn {
+  margin: 0;
+}
+
+/* ===========================
+   LESSONS SECTION
+=========================== */
+
+.lessons-section {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: var(--transition);
+}
+
+.lessons-section:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.lessons-section h2 {
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #111;
-  margin-bottom: 12px;
+  color: var(--text);
 }
 
-.enroll-card .trust small {
-  display: block;
-  margin-top: 8px;
-  color: #777;
-}
-
-.enroll-btn {
-  margin-top: 10px;
-  width: 100%;
-}
-
-/* Already enrolled header block */
-.enrolled-block {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.progress-small {
-  width: 200px;
-}
-
-.progress-line {
-  height: 6px;
-  width: 100%;
-  background: #e4e7eb;
-  border-radius: 10px;
-  margin-bottom: 6px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: #2563eb;
-  border-radius: 10px;
-  transition: width 0.25s ease;
-}
-
-.progress-label {
-  font-size: 0.85rem;
-  color: #444;
-}
-
-/* ===========================
-   LAYOUT
-=========================== */
-
-.course-layout {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 35px;
-  padding: 0 20px;
-}
-
-.left-col {
-  width: 100%;
-}
-
-.right-col {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-/* ===========================
-   VIDEO
-=========================== */
-
-.video-wrapper {
-  background: #000;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.html5-video,
-.responsive-iframe {
-  width: 100%;
-  height: 420px;
-}
-
-.yt-track-note {
-  margin-top: 10px;
-  font-size: 0.85rem;
-  color: #777;
-}
-
-/* ===========================
-   ABOUT SECTION
-=========================== */
-
-.about-card {
-  background: white;
-  padding: 22px;
-  border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.05);
-}
-
-.about-card h3 {
-  margin-bottom: 12px;
-  font-size: 1.3rem;
-  font-weight: 600;
-}
-
-.about-card p {
-  color: #555;
-  margin-bottom: 18px;
-}
-
-.about-list > div {
-  margin-bottom: 6px;
-  font-size: 0.95rem;
-}
-
-.progress-block {
-  margin-top: 15px;
-}
-
-.progress-block .progress-bar {
-  width: 100%;
-  height: 10px;
-  background: #e6e6e6;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 10px 0;
-}
-
-.progress-text {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-/* ===========================
-   LESSONS
-=========================== */
-
-.lessons-card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.05);
-}
-
-.lessons-card h4 {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
-
-.lessons-list {
+.lesson-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.lesson-row {
+.lesson-list li {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
   display: flex;
   justify-content: space-between;
-  padding: 14px 12px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  align-items: center;
+  transition: var(--transition);
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
 }
 
-.lesson-row:hover {
-  background: #f5f5f5;
+.lesson-list li:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
-.lesson-row.active {
-  background: #eef3ff;
-  border-left: 3px solid #2563eb;
+.lesson-list li:hover:not(.locked) {
+  background: var(--bg);
+  transform: translateX(5px);
 }
 
-.lesson-row.locked {
-  opacity: 0.55;
-  cursor: default;
+.lesson-list li.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--bg);
 }
 
-.lesson-left {
-  display: flex;
-  gap: 12px;
-}
-
-.lesson-left .order {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.lesson-left .title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #222;
-}
-
-.lesson-left .desc {
-  color: #666;
-  font-size: 0.85rem;
-}
-
-.lesson-right .btn.small {
-  font-size: 0.8rem;
-  padding: 6px 10px;
+.lock-icon {
+  margin-left: 0.5rem;
+  font-size: 1.1rem;
 }
 
 /* ===========================
-   ENROLLMENT MODAL
+   RIGHT SIDEBAR
 =========================== */
 
-.enroll-modal-overlay {
+.course-sidebar {
+  flex: 1;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  transition: var(--transition);
+}
+
+.course-sidebar:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.course-sidebar h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+}
+
+.course-sidebar p {
+  font-size: 1rem;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.course-sidebar .or {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+  font-weight: 500;
+}
+
+.course-sidebar .enrolled-text {
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--radius);
+  text-align: center;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  box-shadow: var(--shadow);
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+
+.btn {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.btn.primary:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn.outline {
+  background-color: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn.outline:hover {
+  background-color: var(--primary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.course-sidebar .btn {
+  width: 100%;
+}
+
+/* ===========================
+   MODAL
+=========================== */
+
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
+  backdrop-filter: blur(4px);
 }
 
-.enroll-modal {
+.modal-content {
   width: 420px;
-  background: white;
-  padding: 28px;
-  border-radius: 14px;
+  max-width: 90%;
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--radius);
   text-align: center;
-  animation: fadeInUp 0.3s ease;
-}
-
-.enroll-modal h2 {
-  font-size: 1.6rem;
-  margin-bottom: 10px;
-}
-
-.enroll-modal-actions {
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 1.5rem;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.modal-content h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+}
+
+.modal-content p {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.modal-content .btn {
+  width: 100%;
+  padding: 1rem;
+}
+
+.modal-content .btn.outline {
+  margin-top: 0.5rem;
 }
 
 /* ===========================
    ANIMATIONS
 =========================== */
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.locked-video {
-  position: relative;
-}
-
-.locked-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 50; /* ⭐ fixes non-clickable button */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media (max-width: 968px) {
+  .course-details-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .course-sidebar {
+    position: static;
+  }
+
+  .course-main h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .course-details-container {
+    padding: 2rem 1rem;
+  }
+
+  .course-main h1 {
+    font-size: 1.75rem;
+  }
+
+  .video-container {
+    height: 300px;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+}

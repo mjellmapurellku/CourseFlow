@@ -2,9 +2,7 @@
 using CourseFlow.backend.Models;
 using CourseFlow.backend.Models.DTOs;
 using CourseFlow.backend.Repositories;
-using Org.BouncyCastle.Crypto.Generators;
 using BC = BCrypt.Net.BCrypt;
-
 
 namespace CourseFlow.backend.Services
 {

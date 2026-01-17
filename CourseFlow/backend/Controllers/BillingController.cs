@@ -1,43 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Stripe.Checkout;
+﻿using CourseFlow.backend.Services;
+using Microsoft.AspNetCore.Mvc;
+using CourseFlow.backend.Models.DTOs;
 
-namespace CourseFlow.backend.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class BillingController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BillingController : ControllerBase
+    private readonly StripeBillingService _stripeService;
+
+    public BillingController(StripeBillingService stripeService)
     {
-        private readonly IConfiguration _config;
+        _stripeService = stripeService;
+    }
 
-        public BillingController(IConfiguration config)
-        {
-            _config = config;
-        }
+    [HttpPost("create-checkout-session")]
+    public async Task<IActionResult> CreateCheckoutSession([FromBody] CheckoutRequestDto request)
+    {
+        if (request == null || string.IsNullOrEmpty(request.Email))
+            return BadRequest("Invalid request");
 
-        [HttpPost("create-checkout-session")]
-        public IActionResult CreateCheckoutSession()
-        {
-            var priceId = _config["Stripe:PriceId"];
+        var session = await _stripeService.CreateCheckoutSession(
+            request.UserId,
+            request.CourseId,
+            request.Email
+        );
 
-            var options = new SessionCreateOptions
-            {
-                Mode = "subscription",
-                LineItems = new List<SessionLineItemOptions>
-                {
-                    new SessionLineItemOptions
-                    {
-                        Price = priceId,
-                        Quantity = 1
-                    }
-                },
-                SuccessUrl = "http://localhost:3000/payment-success",
-                CancelUrl = "http://localhost:3000/payment-cancel"
-            };
-
-            var service = new SessionService();
-            var session = service.Create(options);
-
-            return Ok(new { url = session.Url });
-        }
+        return Ok(new { url = session.Url });
     }
 }
+

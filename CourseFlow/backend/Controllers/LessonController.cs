@@ -22,17 +22,6 @@ public class LessonController : ControllerBase
         return Ok(dto);
     }
 
-    [HttpGet("course/{courseId}")]
-    public async Task<IActionResult> GetLessonsByCourse(int courseId)
-    {
-        var lessons = await _db.Lessons
-            .Where(x => x.CourseId == courseId)
-            .OrderBy(x => x.Order)
-            .ToListAsync();
-
-        return Ok(lessons);
-    }
-
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateLesson(int id, [FromBody] Lesson updated)
     {
@@ -56,6 +45,51 @@ public class LessonController : ControllerBase
 
         _db.Lessons.Remove(lesson);
         await _db.SaveChangesAsync();
-        return Ok("Deleted");
+        return NoContent();
+    }
+
+    [HttpGet("course/{courseId}")]
+    public async Task<IActionResult> GetLessonPreview(int courseId)
+    {
+        var lessons = await _db.Lessons
+            .Where(l => l.CourseId == courseId)
+            .OrderBy(l => l.Order)
+            .Select(l => new
+            {
+                l.Id,
+                l.Title,
+                l.Order
+            })
+            .ToListAsync();
+
+        return Ok(lessons);
+    }
+
+    [HttpGet("course/{courseId}/paid")]
+    public async Task<IActionResult> GetPaidLessons([FromQuery] int userId,[FromQuery] int courseId)
+    {
+        var enrollment = await _db.Enrollments
+            .FirstOrDefaultAsync(e =>
+                e.CourseId == courseId &&
+                e.UserId == userId &&
+                e.IsPaid);
+
+        if (enrollment == null)
+            return Forbid("You must purchase this course.");
+
+        var lessons = await _db.Lessons
+            .Where(l => l.CourseId == courseId)
+            .OrderBy(l => l.Order)
+            .Select(l => new
+            {
+                l.Id,
+                l.Title,
+                l.Description,
+                l.VideoUrl,
+                l.Order
+            })
+            .ToListAsync();
+
+        return Ok(lessons);
     }
 }
