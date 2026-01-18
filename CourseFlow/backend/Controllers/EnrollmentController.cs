@@ -29,9 +29,14 @@ public class EnrollmentController : ControllerBase
         return Ok(items);
     }
 
+    [Authorize]
     [HttpGet("status")]
-    public async Task<ActionResult> GetStatus([FromQuery] int userId,[FromQuery] int courseId)
+    public async Task<ActionResult> GetStatus([FromQuery] int courseId)
     {
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
         var enrollment = await _enrollmentService
             .GetByUserAndCourseAsync(userId, courseId);
 
@@ -41,33 +46,23 @@ public class EnrollmentController : ControllerBase
         return Ok(new
         {
             enrollment.Id,
-            enrollment.UserId,
             enrollment.CourseId,
             enrollment.EnrollmentDate,
             enrollment.ProgressPercent,
-            enrollment.CompletedLessons,
-            Course = new
-            {
-                enrollment.Course.Id,
-                enrollment.Course.Title,
-                enrollment.Course.Image,
-                enrollment.Course.VideoUrl
-            }
+            enrollment.CompletedLessons
         });
     }
 
     [Authorize]
-    [Authorize]
     [HttpPost("start-payment")]
     public async Task<IActionResult> StartPayment([FromBody] CheckoutRequestDto dto)
     {
-        if (dto == null)
-            return BadRequest("Invalid request");
-
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
 
         if (await _enrollmentService.ExistsAsync(userId, dto.CourseId))
-            return Conflict(new { message = "Already enrolled" });
+            return Conflict("Already enrolled");
 
         var session = await _stripeBillingService.CreateCheckoutSession(
             userId,
@@ -78,10 +73,14 @@ public class EnrollmentController : ControllerBase
         return Ok(new { url = session.Url });
     }
 
-
+    [Authorize]
     [HttpPost("complete-lesson")]
-    public async Task<IActionResult> CompleteLesson([FromQuery] int userId,[FromQuery] int courseId)
+    public async Task<IActionResult> CompleteLesson([FromQuery] int courseId)
     {
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
         var enrollment = await _enrollmentService
             .GetByUserAndCourseAsync(userId, courseId);
 
@@ -96,8 +95,10 @@ public class EnrollmentController : ControllerBase
             enrollment.ProgressPercent =
                 (int)((double)enrollment.CompletedLessons / totalLessons * 100);
 
-            await _enrollmentService
-                .UpdateEnrollment(enrollment.Id, enrollment);
+            await _enrollmentService.UpdateEnrollment(
+                enrollment.Id,
+                enrollment
+            );
         }
 
         return Ok(new

@@ -1,7 +1,9 @@
 ﻿using CourseFlow.backend.Data;
 using CourseFlow.backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -65,9 +67,12 @@ public class LessonController : ControllerBase
         return Ok(lessons);
     }
 
+    [Authorize]
     [HttpGet("course/{courseId}/paid")]
-    public async Task<IActionResult> GetPaidLessons([FromQuery] int userId,[FromQuery] int courseId)
+    public async Task<IActionResult> GetPaidLessons(int courseId)
     {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
         var enrollment = await _db.Enrollments
             .FirstOrDefaultAsync(e =>
                 e.CourseId == courseId &&
@@ -92,4 +97,5 @@ public class LessonController : ControllerBase
 
         return Ok(lessons);
     }
+
 }

@@ -18,34 +18,37 @@ namespace CourseFlow.backend.Services
             _context = context;
         }
 
-        public async Task<Session> CreateCheckoutSession(
-            int userId,
-            int courseId,
-            string email)
+        public async Task<Session> CreateCheckoutSession(int userId,int courseId,string email)
         {
-            var priceId = _config["Stripe:PriceId"];
+            var course = await _context.Courses.FindAsync(courseId);
+
+            if (course == null)
+                throw new Exception("Course not found");
+
+            if (string.IsNullOrEmpty(course.StripePriceId))
+                throw new Exception("Stripe price not configured for this course");
 
             var options = new SessionCreateOptions
             {
                 Mode = "payment",
+                CustomerEmail = email,
                 SuccessUrl = "https://yourfrontend.com/success?session_id={CHECKOUT_SESSION_ID}",
                 CancelUrl = "https://yourfrontend.com/cancel",
-                CustomerEmail = email,
 
                 LineItems = new List<SessionLineItemOptions>
-                {
-                    new SessionLineItemOptions
-                    {
-                        Price = priceId,
-                        Quantity = 1
-                    }
-                },
+        {
+            new SessionLineItemOptions
+            {
+                Price = course.StripePriceId, 
+                Quantity = 1
+            }
+        },
 
                 Metadata = new Dictionary<string, string>
-                {
-                    { "userId", userId.ToString() },
-                    { "courseId", courseId.ToString() }
-                }
+        {
+            { "userId", userId.ToString() },
+            { "courseId", courseId.ToString() }
+        }
             };
 
             var service = new SessionService();

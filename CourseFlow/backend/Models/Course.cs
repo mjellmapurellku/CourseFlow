@@ -18,7 +18,8 @@ namespace CourseFlow.backend.Models
         public string Image { get; set; } 
         public string VideoUrl { get; set; } 
         public int InstructorId { get; set; }
-        public User? Instructor { get; set; } 
+        public User? Instructor { get; set; }
+        public string StripePriceId { get; set; } // ✅ REQUIRED
         public ICollection<Enrollment>? Enrollments { get; set; } 
         public ICollection<Rating>? Ratings { get; set; }
         public ICollection<Lesson>? Lessons { get; set; }
