@@ -35,7 +35,7 @@ namespace CourseFlow
                         ValidAudience = builder.Configuration["AppSettings:Audience"],
                         ValidateLifetime = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
+                             Convert.FromBase64String(builder.Configuration["AppSettings:Token"]!)),
                         ValidateIssuerSigningKey = true
                     };
                 });

@@ -10,18 +10,16 @@ export default function CourseDetails() {
   const [course, setCourse] = useState(null);
   const [enrolled, setEnrolled] = useState(false);
   const [currentLesson, setCurrentLesson] = useState(null);
-  const [showTrialModal, setShowTrialModal] = useState(false);
 
   const user = useSelector((state) => state.user.user);
-  const userId = user?.id ?? user?.userId;
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
         // Fetch course data
-        const courseRes = await fetch(`https://localhost:55554/api/course/${id}`, {
-          credentials: "include",
-        });
+        const courseRes = await fetch(`https://localhost:55554/api/course/${id}`,   
+         { credentials: "include" });
 
         if (!courseRes.ok) throw new Error("Failed to fetch course");
 
@@ -47,26 +45,33 @@ export default function CourseDetails() {
         }
 
         // Check enrollment
-        if (userId) {
-          try {
-            const enrollmentRes = await fetch(
-              `https://localhost:55554/api/enrollment/status?userId=${userId}&courseId=${id}`,
-              { credentials: "include" }
+        if (user && token) {
+          const enrollmentRes = await fetch(`https://localhost:55554/api/enrollment/status?courseId=${id}`,
+             {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
             );
-            setEnrolled(enrollmentRes.ok);
-          } catch (err) {
-            console.error("Error checking enrollment:", err);
+          
+          if (enrollmentRes.ok) {
+            const result = await enrollmentRes.json();
+            setEnrolled(result.isEnrolled === true);
+          } else {
             setEnrolled(false);
           }
-        }
+      }
 
         // Fetch instructor name if not already present
-        if (courseData.InstructorId && !courseData.teacherName) {
+        if (courseData.instructorId ?? courseData.InstructorId) {
           try {
-            const userRes = await fetch(
-              `https://localhost:55554/api/user/${courseData.InstructorId}`,
-              { credentials: "include" }
-            );
+            const userRes = await fetch(`https://localhost:55554/api/user/${courseData.InstructorId}`,
+                {
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
             if (userRes.ok) {
               const instructorData = await userRes.json();
               setCourse((prev) => ({
@@ -84,47 +89,51 @@ export default function CourseDetails() {
     };
 
     fetchCourseData();
-  }, [id, userId]);
+  }, [id, user, token]);
 
-  const handleEnroll = async () => {
-    try {
-      const response = await fetch("https://localhost:55554/api/enrollment/enroll", {
+  // const handleEnroll = async () => {
+  //   try {
+  //     const response = await fetch("https://localhost:55554/api/enrollment/enroll", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({courseId: id }),
+  //       credentials: "include",
+  //     });
+  //     if (response.ok) setEnrolled(true);
+  //   } catch (err) {
+  //     console.error("Error enrolling in course:", err);
+  //   }
+  // };
+
+ const handleStripeCheckout = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      "https://localhost:55554/api/enrollment/start-payment",
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, courseId: id }),
-        credentials: "include",
-      });
-      if (response.ok) setEnrolled(true);
-    } catch (err) {
-      console.error("Error enrolling in course:", err);
-    }
-  };
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          courseId: Number(id),
+        }),
+      }
+    );
 
-  const handleStripeCheckout = async () => {
-    try {
-      const response = await fetch(
-        "https://localhost:55554/api/billing/create-checkout-session",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            email: user?.email ?? user?.data?.email,
-            courseId: id,
-          }),
-        }
-      );
+    if (!response.ok) throw new Error("Checkout failed");
 
-      const data = await response.json();
-      if (!data.url) return alert("Stripe session failed");
+    const data = await response.json();
 
-      window.location.href = data.url;
-    } catch (err) {
-      console.error("Stripe Checkout error", err);
-      alert("Unable to start checkout.");
-    }
-  };
+    window.location.href = data.url;
+  } catch (err) {
+    console.error("Stripe Checkout error", err);
+    alert("Unable to start checkout.");
+  }
+};
+
 
   if (!course) return <p>Loading course...</p>;
 
@@ -151,9 +160,9 @@ export default function CourseDetails() {
                 )}
                 <div className="video-overlay">
                   <h2>This lesson is locked</h2>
-                  <button className="btn primary" onClick={handleStripeCheckout}>
+                  {/* <button className="btn primary" onClick={handleStripeCheckout}>
                     Start free trial (Stripe)
-                  </button>
+                  </button> */}
                 </div>
               </div>
             )}
@@ -189,15 +198,14 @@ export default function CourseDetails() {
           <h3>About this course</h3>
           <p><strong>Lessons:</strong> {course.lessons?.length ?? 0}</p>
           <p><strong>Category:</strong> {course.category}</p>
-          <p><strong>Uploaded by:</strong> {course.teacherName}</p>
+          <p><strong>Uploaded by:</strong> {course.teacherName ?? "Loading..."}</p>
           <p className="course-description">{course.description}</p>
 
           {!enrolled ? (
             <>
-              <button className="btn primary" onClick={handleEnroll}>Enroll in course</button>
-              <p className="or">or</p>
+             <button className="btn primary" onClick={handleStripeCheckout}>Buy this course</button>
               <button className="btn outline" onClick={handleStripeCheckout}>
-                Start 7-day free trial (Stripe)
+                  Enroll now
               </button>
             </>
           ) : (
@@ -206,7 +214,7 @@ export default function CourseDetails() {
         </div>
       </div>
 
-      {showTrialModal && (
+      {/* {showTrialModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>Start Free Trial</h2>
@@ -215,7 +223,7 @@ export default function CourseDetails() {
             <button className="btn outline" onClick={() => setShowTrialModal(false)}>Cancel</button>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 }
