@@ -44,14 +44,14 @@ namespace CourseFlow.backend.Services
             var existing = await _enrollmentRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
-            existing.UserId = enrollment.UserId;
-            existing.CourseId = enrollment.CourseId;
-            existing.EnrollmentDate = enrollment.EnrollmentDate;
+            existing.IsPaid = enrollment.IsPaid;
+            existing.StripeSessionId = enrollment.StripeSessionId;
+            existing.ProgressPercent = enrollment.ProgressPercent;
+            existing.CompletedLessons = enrollment.CompletedLessons;
 
             await _enrollmentRepository.UpdateAsync(existing);
             return existing;
         }
-
         public async Task<bool> DeleteEnrollment(int id)
         {
             var existing = await _enrollmentRepository.GetByIdAsync(id);

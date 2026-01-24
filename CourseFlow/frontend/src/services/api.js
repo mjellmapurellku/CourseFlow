@@ -6,6 +6,15 @@ export const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+
 // USERS CRUD
 export const getUsers = async () => api.get("/User");
 export const getUserById = async (id) => api.get(`/User/${id}`);
@@ -34,8 +43,8 @@ export const updateEnrollment = (id, data) =>
   api.put(`/enrollment/${id}`, data);
 
 // **Fixed**: backend expects query parameters for status endpoint
-export const getEnrollmentStatus = (userId, courseId) =>
-  api.get(`/enrollment/status?userId=${encodeURIComponent(userId)}&courseId=${encodeURIComponent(courseId)}`);
+export const getEnrollmentStatus = (courseId) =>
+  api.get(`/enrollment/status?courseId=${courseId}`);
 
 // get enrollments by user
 export const getEnrollmentsByUser = (userId) =>

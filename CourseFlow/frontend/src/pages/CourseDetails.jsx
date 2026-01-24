@@ -15,81 +15,78 @@ export default function CourseDetails() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchCourseData = async () => {
-      try {
-        // Fetch course data
-        const courseRes = await fetch(`https://localhost:55554/api/course/${id}`,   
-         { credentials: "include" });
+  const fetchCourseData = async () => {
+    try {
+      const courseRes = await fetch(
+        `https://localhost:55554/api/course/${id}`,
+        { credentials: "include" }
+      );
 
-        if (!courseRes.ok) throw new Error("Failed to fetch course");
+      if (!courseRes.ok) throw new Error("Failed to fetch course");
 
-        const courseData = await courseRes.json();
+      const courseData = await courseRes.json();
 
-        // Normalize lessons
-        const lessons = courseData.Lessons || courseData.lessons || [];
-        const normalizedLessons = lessons.map((lesson) => ({
-          id: lesson.id ?? lesson.Id,
-          title: lesson.title ?? lesson.Title,
-          videoUrl: lesson.videoUrl ?? lesson.VideoUrl,
-          order: lesson.order ?? lesson.Order,
-          allowedSegments: lesson.allowedSegments ?? lesson.AllowedSegments,
-        }));
+      const lessons = courseData.Lessons || courseData.lessons || [];
+      const normalizedLessons = lessons.map((lesson) => ({
+        id: lesson.id ?? lesson.Id,
+        title: lesson.title ?? lesson.Title,
+        videoUrl: lesson.videoUrl ?? lesson.VideoUrl,
+        order: lesson.order ?? lesson.Order,
+        allowedSegments: lesson.allowedSegments ?? lesson.AllowedSegments,
+      }));
 
-        setCourse({
-          ...courseData,
-          lessons: normalizedLessons,
-        });
+      setCourse({ ...courseData, lessons: normalizedLessons });
 
-        if (normalizedLessons.length > 0) {
-          setCurrentLesson(normalizedLessons[0]);
-        }
-
-        // Check enrollment
-        if (user && token) {
-          const enrollmentRes = await fetch(`https://localhost:55554/api/enrollment/status?courseId=${id}`,
-             {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-          
-          if (enrollmentRes.ok) {
-            const result = await enrollmentRes.json();
-            setEnrolled(result.isEnrolled === true);
-          } else {
-            setEnrolled(false);
-          }
+      if (normalizedLessons.length > 0) {
+        setCurrentLesson(normalizedLessons[0]);
       }
 
-        // Fetch instructor name if not already present
-        if (courseData.instructorId ?? courseData.InstructorId) {
-          try {
-            const userRes = await fetch(`https://localhost:55554/api/user/${courseData.InstructorId}`,
-                {
-                    headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
-            if (userRes.ok) {
-              const instructorData = await userRes.json();
-              setCourse((prev) => ({
-                ...prev,
-                teacherName: instructorData.name ?? instructorData.username ?? "Unknown",
-              }));
-            }
-          } catch (err) {
-            console.error("Error fetching instructor:", err);
+      // enrollment
+      if (user && token) {
+        const enrollmentRes = await fetch(
+          `https://localhost:55554/api/enrollment/status?courseId=${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
           }
-        }
-      } catch (err) {
-        console.error("Error fetching course:", err);
-      }
-    };
+        );
 
-    fetchCourseData();
-  }, [id, user, token]);
+        if (enrollmentRes.ok) {
+          const result = await enrollmentRes.json();
+          setEnrolled(result.isEnrolled === true);
+        }
+      }
+
+      // instructor
+      const instructorId =
+        courseData.instructorId ?? courseData.InstructorId;
+
+      if (instructorId && token) {
+        const userRes = await fetch(
+          `https://localhost:55554/api/user/${instructorId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (userRes.ok) {
+          const instructorData = await userRes.json();
+          setCourse((prev) => ({
+            ...prev,
+            teacherName:
+              instructorData.name ??
+              instructorData.username ??
+              "Unknown",
+          }));
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching course:", err);
+    }
+  };
+
+  fetchCourseData();
+}, [id, user, token]);
+
 
   // const handleEnroll = async () => {
   //   try {
@@ -105,9 +102,26 @@ export default function CourseDetails() {
   //   }
   // };
 
- const handleStripeCheckout = async () => {
+console.log("Course ID raw:", id);
+console.log("Course ID number:", Number(id));
+console.log("JWT token exists:", !!token);
+
+const handleStripeCheckout = async () => {
+    console.log("🔥 CHECKOUT CLICKED");
+
   try {
     const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must be logged in");
+      return;
+    }
+
+    if (!id || isNaN(Number(id))) {
+      console.error("Invalid course id:", id);
+      alert("Invalid course");
+      return;
+    }
 
     const response = await fetch(
       "https://localhost:55554/api/enrollment/start-payment",
@@ -118,21 +132,26 @@ export default function CourseDetails() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          courseId: Number(id),
+          courseId: parseInt(id, 10), 
         }),
       }
     );
 
-    if (!response.ok) throw new Error("Checkout failed");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Backend error:", errorText);
+      throw new Error("Checkout failed");
+    }
 
     const data = await response.json();
-
     window.location.href = data.url;
+
   } catch (err) {
     console.error("Stripe Checkout error", err);
     alert("Unable to start checkout.");
   }
 };
+
 
 
   if (!course) return <p>Loading course...</p>;

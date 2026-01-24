@@ -20,6 +20,7 @@ import Home from "./pages/Home";
 import LessonsPage from "./pages/LessonsPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Success from "./pages/Success";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/UsersPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -111,6 +112,7 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route path="/success" element={<Success />} />
         </Routes>
         
       </main>

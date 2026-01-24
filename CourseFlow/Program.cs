@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
+using System.Security.Claims;
 using System.Text;
 
 namespace CourseFlow
@@ -27,6 +28,17 @@ namespace CourseFlow
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            if (context.HttpContext.Request.Method == "OPTIONS")
+                            {
+                                context.NoResult();
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -34,11 +46,19 @@ namespace CourseFlow
                         ValidateAudience = true,
                         ValidAudience = builder.Configuration["AppSettings:Audience"],
                         ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
-                             Convert.FromBase64String(builder.Configuration["AppSettings:Token"]!)),
-                        ValidateIssuerSigningKey = true
+                            Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)
+                         ),
+                        NameClaimType = ClaimTypes.NameIdentifier,
+                        RoleClaimType = ClaimTypes.Role
                     };
                 });
+
+            builder.Services.AddControllers(options =>
+            {
+                options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+            });
 
             // ✅ CORS Policy
             builder.Services.AddCors(options =>
@@ -66,11 +86,15 @@ namespace CourseFlow
             builder.Services.AddScoped<StripeBillingService>();
 
 
-            builder.Services.AddControllers();
+            //builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             // Stripe configuration
             Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+            Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+            Console.WriteLine("STRIPE KEY IN USE: " + Stripe.StripeConfiguration.ApiKey);
 
             var app = builder.Build();
 
@@ -109,13 +133,15 @@ namespace CourseFlow
                 app.UseSwaggerUI();
             }
 
+            app.UseMiddleware<ExceptionMiddleware>();
+
             app.UseHttpsRedirection();
             app.UseCors("AllowFrontend");
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-            app.UseMiddleware<ExceptionMiddleware>();
-
+            
             app.Run();
         }
     }

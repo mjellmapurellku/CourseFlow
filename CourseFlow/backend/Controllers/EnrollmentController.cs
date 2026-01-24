@@ -11,6 +11,16 @@ public class EnrollmentController : ControllerBase
 {
     private readonly IEnrollmentService _enrollmentService;
     private readonly StripeBillingService _stripeBillingService;
+    [Authorize]
+    [HttpGet("auth-test")]
+    public IActionResult AuthTest()
+    {
+        return Ok(new
+        {
+            IsAuthenticated = User.Identity!.IsAuthenticated,
+            Claims = User.Claims.Select(c => new { c.Type, c.Value })
+        });
+    }
 
     public EnrollmentController(
         IEnrollmentService enrollmentService,
@@ -42,8 +52,7 @@ public class EnrollmentController : ControllerBase
 
     [Authorize]
     [HttpPost("start-payment")]
-    public async Task<IActionResult> StartPayment(
-        [FromBody] CheckoutRequestDto dto)
+    public async Task<IActionResult> StartPayment([FromBody] CheckoutRequestDto dto)
     {
         var userId = int.Parse(
             User.FindFirst(ClaimTypes.NameIdentifier)!.Value
@@ -52,14 +61,59 @@ public class EnrollmentController : ControllerBase
         if (await _enrollmentService.ExistsAsync(userId, dto.CourseId))
             return Conflict("Already enrolled");
 
-        var session =
-            await _stripeBillingService.CreateCheckoutSession(
-                userId,
-                dto.CourseId
-            );
+        var enrollment = await _enrollmentService.CreateEnrollment(new Enrollment
+        {
+            UserId = userId,
+            CourseId = dto.CourseId,
+            IsPaid = false,
+            EnrollmentDate = DateTime.UtcNow,   
+            ProgressPercent = 0,
+            CompletedLessons = 0
+        });
+
+        var session = await _stripeBillingService.CreateCheckoutSession(
+            userId,
+            dto.CourseId,
+            enrollment.Id 
+        );
+
+        enrollment.StripeSessionId = session.Id;
+        await _enrollmentService.UpdateEnrollment(enrollment.Id, enrollment);
 
         return Ok(new { url = session.Url });
     }
+    [Authorize]
+    [HttpPost("confirm-payment")]
+    public async Task<IActionResult> ConfirmPayment([FromBody] ConfirmPaymentDto dto)
+    {
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        var service = new Stripe.Checkout.SessionService();
+        var session = await service.GetAsync(dto.SessionId);
+
+        if (session.PaymentStatus != "paid")
+            return BadRequest("Payment not completed");
+
+        var enrollmentId =
+            int.Parse(session.Metadata["enrollmentId"]);
+
+        var enrollment =
+            await _enrollmentService.GetEnrollmentById(enrollmentId);
+
+        if (enrollment == null || enrollment.UserId != userId)
+            return Forbid();
+
+        enrollment.IsPaid = true;
+        await _enrollmentService.UpdateEnrollment(
+            enrollment.Id,
+            enrollment
+        );
+
+        return Ok();
+    }
+
 
     [Authorize]
     [HttpPost("complete-lesson")]

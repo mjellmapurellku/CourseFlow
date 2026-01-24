@@ -17,56 +17,43 @@ namespace CourseFlow.backend.Services
             _context = context;
         }
 
-        public async Task<Session> CreateCheckoutSession(int userId, int courseId)
+        public async Task<Session> CreateCheckoutSession(
+     int userId,
+     int courseId,
+     int enrollmentId)
         {
-            var course = await _context.Courses.FindAsync(courseId);
-            if (course == null)
-                throw new Exception("Course not found");
-
-            if (string.IsNullOrEmpty(course.StripePriceId))
-                throw new Exception("Stripe price not configured for this course");
-
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-                throw new Exception("User not found");
-
             var options = new SessionCreateOptions
             {
                 Mode = "payment",
-                CustomerEmail = user.Email,
-                SuccessUrl = "https://yourfrontend.com/success?session_id={CHECKOUT_SESSION_ID}",
-                CancelUrl = "https://yourfrontend.com/cancel",
+                PaymentMethodTypes = new List<string> { "card" },
 
                 LineItems = new List<SessionLineItemOptions>
+        {
+            new()
+            {
+                PriceData = new SessionLineItemPriceDataOptions
                 {
-                    new SessionLineItemOptions
+                    Currency = "usd",
+                    UnitAmount = 5000,
+                    ProductData = new()
                     {
-                        Price = course.StripePriceId,
-                        Quantity = 1
+                        Name = $"Course #{courseId}"
                     }
                 },
+                Quantity = 1
+            }
+        },
+                SuccessUrl = "http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}&courseId" + courseId,
+                CancelUrl = "http://localhost:3000/courses/" + courseId,
 
                 Metadata = new Dictionary<string, string>
-                {
-                    { "userId", userId.ToString() },
-                    { "courseId", courseId.ToString() }
-                }
+        {
+            { "enrollmentId", enrollmentId.ToString() }
+        }
             };
 
             var service = new SessionService();
-            var session = await service.CreateAsync(options);
-
-            _context.Enrollments.Add(new Enrollment
-            {
-                UserId = userId,
-                CourseId = courseId,
-                StripeSessionId = session.Id,
-                IsPaid = false
-            });
-
-            await _context.SaveChangesAsync();
-
-            return session;
+            return await service.CreateAsync(options);
         }
     }
 }
