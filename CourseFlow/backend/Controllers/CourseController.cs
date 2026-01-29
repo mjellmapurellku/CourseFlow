@@ -2,9 +2,11 @@
 using CourseFlow.backend.Models;
 using CourseFlow.backend.Models.DTOs;
 using CourseFlow.backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
+using System.Security.Claims;
 
 namespace CourseFlow.backend.Controllers
 {
@@ -158,5 +160,49 @@ namespace CourseFlow.backend.Controllers
             return Ok(lessons);
         }
 
+        [Authorize]
+        [HttpGet("{courseId}/player")]
+        public async Task<IActionResult> GetCoursePlayer(int courseId,[FromServices] AppDbContext db)
+        {
+            var userId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+            );
+
+            var course = await db.Courses
+                .Include(c => c.Lessons.OrderBy(l => l.Order))
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+
+            if (course == null)
+                return NotFound();
+
+            var enrollment = await db.Enrollments
+                .AsNoTracking() 
+                .FirstOrDefaultAsync(e =>
+                    e.CourseId == courseId &&
+                    e.UserId == userId &&
+                    e.IsPaid
+                );
+
+            var isEnrolled = enrollment != null;
+
+            return Ok(new
+            {
+                enrolled = isEnrolled,
+                course = new
+                {
+                    course.Id,
+                    course.Title,
+                    course.Description,
+                    Progress = enrollment?.ProgressPercent ?? 0
+                },
+                lessons = course.Lessons.Select(l => new
+                {
+                    l.Id,
+                    l.Title,
+                    VideoUrl = isEnrolled ? l.VideoUrl : null,
+                    l.Order
+                })
+            });
+        }
     }
 }

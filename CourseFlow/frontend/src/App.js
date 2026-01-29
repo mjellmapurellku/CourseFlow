@@ -112,9 +112,10 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route path="/success" element={<Success />} />
+           <Route path="/success" element={<Success />} />
+           <Route path="/courses/:courseId/player" element={<CoursePlayer />} />
+           <Route path="/courses/:courseId/player/:lessonId?" element={<CoursePlayer />} />
         </Routes>
-        
       </main>
 
       {/* Footer (not on admin routes) */}

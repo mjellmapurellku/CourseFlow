@@ -1,4 +1,4 @@
-
+/* 
 
   .udemy-player.improved { --max-width: 1200px; margin: 0 auto; padding: 18px; }
   .top-header.sticky { display:flex; justify-content:space-between; align-items:center; gap:12px; position:sticky; top:0; background: #fff; z-index:30; padding:12px 0; }
@@ -21,5 +21,101 @@
   .lesson-item.completed .lesson-label { text-decoration:line-through; color:#6b7280; }
   .btn.tiny { padding:6px 8px; border-radius:6px; }
   .progress-line.small { width:120px; height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; display:inline-block; margin-right:8px; }
-  .progress-line.small .progress-fill { height:100%; background:#2563eb; }
+  .progress-line.small .progress-fill { height:100%; background:#2563eb; } */
+
+
+  .course-player {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.course-header h1 {
+  margin-bottom: 5px;
+}
+
+.course-progress {
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.lessons-section {
+  margin-top: 25px;
+}
+
+.lesson-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 6px;
+}
+
+.lesson-info {
+  display: flex;
+  gap: 12px;
+}
+
+.lesson-index {
+  font-weight: bold;
+}
+
+.lesson-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.lesson-btn:hover {
+  background-color: #43a047;
+}
+
+.lesson-locked {
+  color: #999;
+  font-size: 14px;
+}
+.lesson-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.nav-btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.nav-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+.course-progress {
+  margin: 12px 0;
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #2563eb;
+  transition: width 0.3s ease;
+}
+
 

@@ -23,43 +23,71 @@ export default function Courses() {
   const [selectedLevel, setSelectedLevel] = useState("All Levels");
   const [sortBy, setSortBy] = useState("popular");
 
-  const [categories, setCategories] = useState(["All"]); // dynamic
-  const [levels, setLevels] = useState(["All Levels"]); // dynamic
+  const [categories, setCategories] = useState(["All"]);
+  const [levels, setLevels] = useState(["All Levels"]);
+  const [paidCourses, setPaidCourses] = useState(new Set());
 
-  // 🔥 GET COURSES FROM BACKEND
   useEffect(() => {
-    getCourses()
-      .then((res) => {
-        console.log("COURSES FROM BACKEND:", res.data);
+  const fetchCoursesAndEnrollments = async () => {
+    try {
+      const res = await getCourses();
 
-        const coursesArray = Array.isArray(res.data)
-          ? res.data
-          : res.data?.data || [];
+      const coursesArray = Array.isArray(res.data)
+        ? res.data
+        : res.data?.data || [];
 
-        setAllCourses(coursesArray);
+      setAllCourses(coursesArray);
 
-        // 🔥 extract categories dynamically
-        const uniqueCategories = [
-          "All",
-          ...new Set(coursesArray.map((c) => c.category).filter(Boolean)),
-        ];
-        setCategories(uniqueCategories);
+      setCategories([
+        "All",
+        ...new Set(coursesArray.map((c) => c.category).filter(Boolean)),
+      ]);
 
-        // 🔥 extract levels dynamically
-        const uniqueLevels = [
-          "All Levels",
-          ...new Set(coursesArray.map((c) => c.level).filter(Boolean)),
-        ];
-        setLevels(uniqueLevels);
-      })
-      .catch((err) => console.error("COURSE FETCH ERROR:", err))
-      .finally(() => setLoading(false));
-  }, []);
+      setLevels([
+        "All Levels",
+        ...new Set(coursesArray.map((c) => c.level).filter(Boolean)),
+      ]);
 
-  const safeCourses = Array.isArray(allCourses) ? allCourses : [];
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-  // 🔎 FILTER + SORT COURSES
-  const filteredCourses = safeCourses
+      // 🔑 check enrollment status for each course
+      const paidSet = new Set();
+
+      await Promise.all(
+        coursesArray.map(async (course) => {
+          try {
+            const res = await fetch(
+              `https://localhost:55554/api/enrollment/status?courseId=${course.id}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (res.ok) {
+              const data = await res.json();
+              if (data.isEnrolled) {
+                paidSet.add(course.id);
+              }
+            }
+          } catch (_) {}
+        })
+      );
+
+      setPaidCourses(paidSet);
+    } catch (err) {
+      console.error("COURSE FETCH ERROR:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCoursesAndEnrollments();
+}, []);
+
+  const filteredCourses = allCourses
     .filter((course) => {
       const matchesSearch = course.title
         ?.toLowerCase()
@@ -114,13 +142,21 @@ export default function Courses() {
             {course.price ? `$${course.price}` : "Free"}
           </div>
 
-         <button
+       <button
           className="enroll-btn"
-          onClick={() => navigate(`/courses/${course.id}`)}
+          onClick={() => {
+            if (paidCourses.has(course.id)) {
+              navigate(`/courses/${course.id}/player`);
+            } else {
+              navigate(`/courses/${course.id}`);
+            }
+          }}
         >
-          Enroll <FiArrowRight className="arrow-icon" />
-        </button>
-
+          {paidCourses.has(course.id)
+            ? "Continue Learning"
+            : "Enroll"}
+          <FiArrowRight className="arrow-icon" />
+       </button>
         </div>
       </div>
     </div>
@@ -135,15 +171,13 @@ export default function Courses() {
 
   return (
     <div id="courses-page-container" className="courses-page">
-      {/* Hero Section */}
       <section className="courses-hero">
         <div className="courses-hero-content">
           <h1>Explore Our Courses</h1>
-          <p>Discover thousands of courses to advance your skills and career</p>
+          <p>Discover courses to advance your skills</p>
         </div>
       </section>
 
-      {/* Filters */}
       <section className="filters-section">
         <div className="filters-container">
           <div className="search-box">
@@ -157,7 +191,6 @@ export default function Courses() {
           </div>
 
           <div className="filter-controls">
-            {/* Categories */}
             <div className="filter-group">
               <FiFilter className="filter-icon" />
               <select
@@ -170,7 +203,6 @@ export default function Courses() {
               </select>
             </div>
 
-            {/* Levels */}
             <div className="filter-group">
               <FiBook className="filter-icon" />
               <select
@@ -183,7 +215,6 @@ export default function Courses() {
               </select>
             </div>
 
-            {/* Sort */}
             <div className="filter-group">
               <select
                 value={sortBy}
@@ -199,23 +230,14 @@ export default function Courses() {
         </div>
       </section>
 
-      {/* Results */}
       <section className="courses-results">
-        <div className="results-header">
-          <h2>
-            {filteredCourses.length}{" "}
-            {filteredCourses.length === 1 ? "Course" : "Courses"} Found
-          </h2>
-        </div>
-
         <div className="courses-grid">
           {filteredCourses.length > 0 ? (
             filteredCourses.map(renderCourseCard)
           ) : (
             <div className="no-results">
-              <FiBook className="no-results-icon" />
+              <FiBook />
               <h3>No courses found</h3>
-              <p>Try adjusting your filters or search term</p>
             </div>
           )}
         </div>

@@ -17,6 +17,7 @@ export default function CourseDetails() {
   useEffect(() => {
   const fetchCourseData = async () => {
     try {
+      // 1️⃣ Fetch course
       const courseRes = await fetch(
         `https://localhost:55554/api/course/${id}`,
         { credentials: "include" }
@@ -38,10 +39,10 @@ export default function CourseDetails() {
       setCourse({ ...courseData, lessons: normalizedLessons });
 
       if (normalizedLessons.length > 0) {
-        setCurrentLesson(normalizedLessons[0]);
+        setCurrentLesson(normalizedLessons[0]); // preview only
       }
 
-      // enrollment
+      // 2️⃣ Check enrollment + PAYMENT STATUS
       if (user && token) {
         const enrollmentRes = await fetch(
           `https://localhost:55554/api/enrollment/status?courseId=${id}`,
@@ -52,11 +53,24 @@ export default function CourseDetails() {
 
         if (enrollmentRes.ok) {
           const result = await enrollmentRes.json();
-          setEnrolled(result.isEnrolled === true);
+
+          /**
+           * IMPORTANT:
+           * user is considered enrolled ONLY if payment is completed
+           */
+          if (result.isEnrolled === true && result.isPaid === true) {
+            setEnrolled(true);
+          } else {
+            setEnrolled(false);
+          }
+        } else {
+          setEnrolled(false);
         }
+      } else {
+        setEnrolled(false);
       }
 
-      // instructor
+      // 3️⃣ Fetch instructor
       const instructorId =
         courseData.instructorId ?? courseData.InstructorId;
 
@@ -81,11 +95,13 @@ export default function CourseDetails() {
       }
     } catch (err) {
       console.error("Error fetching course:", err);
+      setEnrolled(false);
     }
   };
 
   fetchCourseData();
 }, [id, user, token]);
+
 
 
   // const handleEnroll = async () => {
@@ -223,9 +239,9 @@ const handleStripeCheckout = async () => {
           {!enrolled ? (
             <>
              <button className="btn primary" onClick={handleStripeCheckout}>Buy this course</button>
-              <button className="btn outline" onClick={handleStripeCheckout}>
+              {/* <button className="btn outline" onClick={handleStripeCheckout}>
                   Enroll now
-              </button>
+              </button> */}
             </>
           ) : (
             <p className="enrolled-text">You are enrolled</p>

@@ -24,3 +24,7 @@ yarn-error.log
 # System files
 Thumbs.db
 .DS_Store
+
+# ASP.NET secrets
+appsettings.Development.json
+CourseFlow/appsettings.Development.json

@@ -25,8 +25,12 @@ namespace CourseFlow.backend.Services
         public async Task<Course?> GetCourseById(int id)
         {
             _logger.LogInformation("Fetching course with id {CourseId}", id);
-            return await _context.Courses.FindAsync(id);
+
+            return await _context.Courses
+                .Include(c => c.Lessons)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
+
 
         public async Task<Course> CreateCourse(Course course)
         {

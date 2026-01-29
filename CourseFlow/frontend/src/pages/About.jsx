@@ -59,7 +59,7 @@ export default function About() {
       {/* Hero Section */}
       <section className="about-hero">
         <div className="about-hero-content">
-          <h1>About <span className="highlight">CourseFlow</span></h1>
+          <h1 className="title">About CourseFlow</h1>
           <p>
             Empowering learners worldwide with AI-powered education that adapts to your unique learning style and goals.
           </p>
@@ -115,7 +115,7 @@ export default function About() {
       </section>
 
       {/* Team Section */}
-      <section className="team-section">
+      {/* <section className="team-section">
         <h2>Meet Our Team</h2>
         <p className="team-intro">
           Passionate educators and technologists dedicated to transforming online learning
@@ -132,7 +132,7 @@ export default function About() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="about-cta">

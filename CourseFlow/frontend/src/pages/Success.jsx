@@ -1,58 +1,53 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { api } from "../services/api";
 
-function Success() {
-  const navigate = useNavigate();
+export default function Success() {
   const [searchParams] = useSearchParams();
-
-  const courseId = searchParams.get("courseId");
+  const navigate = useNavigate();
+  const hasConfirmed = useRef(false);
 
   useEffect(() => {
-    async function handleSuccess() {
-      if (!courseId) {
-        navigate("/courses");
-        return;
-      }
+    if (hasConfirmed.current) return;
+    hasConfirmed.current = true;
 
-      try {
-        const response = await fetch(
-          `https://localhost:55554/api/lessons/course/${courseId}`
-        );
+    const sessionId = searchParams.get("session_id");
+    const courseId = searchParams.get("courseId");
 
-        if (!response.ok) {
-          throw new Error("Failed to load lessons");
-        }
-
-        const lessons = await response.json();
-
-        if (!lessons || lessons.length === 0) {
-          navigate(`/courses/${courseId}`);
-          return;
-        }
-
-        const sortedLessons = lessons.sort(
-          (a, b) => a.order - b.order
-        );
-
-        const firstLessonId = sortedLessons[0].id;
-
-        navigate(`/course-player/${courseId}/${firstLessonId}`);
-      } catch (error) {
-        console.error("Success redirect error:", error);
-        navigate("/courses");
-      }
+    // Guard: missing params
+    if (!sessionId || !courseId) {
+      console.error("Missing sessionId or courseId");
+      navigate("/courses", { replace: true });
+      return;
     }
 
-    handleSuccess();
-  }, [courseId, navigate]);
+    const confirmPayment = async () => {
+      try {
+       await api.post(
+  "/enrollment/confirm-payment",
+  { sessionId },
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  }
+);
+        // ✅ redirect to course
+      navigate(`/courses/${courseId}/player`, { replace: true });
+      } catch (err) {
+        console.error("Payment confirmation failed:", err);
+        navigate("/courses", { replace: true });
+      }
+    };
+
+    confirmPayment();
+  }, [navigate, searchParams]);
 
   return (
-    <div className="flex justify-center items-center h-[60vh]">
+    <div className="flex justify-center items-center min-h-screen">
       <h2 className="text-xl font-semibold">
-        Payment successful 🎉 Redirecting to your course...
+        Payment successful! Redirecting...
       </h2>
     </div>
   );
 }
-
-export default Success;

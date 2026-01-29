@@ -17,10 +17,7 @@ namespace CourseFlow.backend.Services
             _context = context;
         }
 
-        public async Task<Session> CreateCheckoutSession(
-     int userId,
-     int courseId,
-     int enrollmentId)
+        public async Task<Session> CreateCheckoutSession(int userId,int courseId,int enrollmentId)
         {
             var options = new SessionCreateOptions
             {
@@ -43,8 +40,8 @@ namespace CourseFlow.backend.Services
                 Quantity = 1
             }
         },
-                SuccessUrl = "http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}&courseId" + courseId,
-                CancelUrl = "http://localhost:3000/courses/" + courseId,
+                SuccessUrl = $"http://localhost:3000/success?session_id={{CHECKOUT_SESSION_ID}}&courseId={courseId}",
+                CancelUrl = "http://localhost:3000/courses",
 
                 Metadata = new Dictionary<string, string>
         {

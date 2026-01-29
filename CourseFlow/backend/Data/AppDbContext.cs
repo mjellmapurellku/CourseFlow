@@ -64,7 +64,10 @@ namespace CourseFlow.backend.Data
             modelBuilder.Entity<Course>()
                 .Property(c => c.Price)
                 .HasColumnType("decimal(10,2)");
-        }
 
+            modelBuilder.Entity<Enrollment>()
+                .HasIndex(e => new { e.UserId, e.CourseId })
+                .IsUnique();
+        }
     }
 }
