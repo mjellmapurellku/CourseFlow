@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import Navbar from "./components/NavBar";
 
 import About from "./pages/About";
+import Contact from "./pages/Contact";
 import CourseDetails from "./pages/CourseDetails";
 import CoursesPage from "./pages/CoursePage";
 import CoursePlayer from "./pages/CoursePlayer";
@@ -70,6 +71,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/about" element={<About />} />
+           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/unauthorized" element={<Unauthorized />} />

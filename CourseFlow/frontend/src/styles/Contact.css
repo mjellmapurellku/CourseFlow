@@ -1,0 +1,97 @@
+/* Contact Page Styles */
+
+.contact-page {
+  min-height: 100vh;
+  padding: 80px 20px;
+}
+
+.contact-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.contact-container h1 {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 800;
+  color:  #1e3a8a;
+  margin-bottom: 10px;
+}
+
+.contact-subtitle {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #fbbf24;
+  margin-bottom: 60px;
+}
+
+.contact-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contact Info */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;     /* ✅ center horizontally */
+}
+
+
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  width: 420px;           /* ✅ fixed width so it centers nicely */
+}
+
+
+.info-item:hover {
+  transform: translateX(10px);
+}
+
+.info-item svg {
+  font-size: 2rem;
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.info-item h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 5px;
+}
+
+.info-item p {
+  font-size: 1rem;
+  color: #718096;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-page {
+    padding: 60px 20px;
+  }
+
+  .contact-container h1 {
+    font-size: 2.5rem;
+  }
+
+  .contact-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .contact-form {
+    padding: 30px;
+  }
+}
