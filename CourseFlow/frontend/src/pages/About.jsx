@@ -95,7 +95,7 @@ export default function About() {
             </p>
           </div>
           <div className="story-image">
-            <img src="https://source.unsplash.com/random/600x400?education,learning" alt="Our Story" />
+            <img src="courseflow.jpg" alt="Our Story" />
           </div>
         </div>
       </section>
@@ -111,35 +111,6 @@ export default function About() {
               <p>{value.description}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Team Section */}
-      {/* <section className="team-section">
-        <h2>Meet Our Team</h2>
-        <p className="team-intro">
-          Passionate educators and technologists dedicated to transforming online learning
-        </p>
-        <div className="team-grid">
-          {team.map((member, index) => (
-            <div key={index} className="team-card">
-              <div className="team-image" style={{ backgroundImage: `url(${member.image})` }}></div>
-              <div className="team-info">
-                <h3>{member.name}</h3>
-                <p className="team-role">{member.role}</p>
-                <p className="team-description">{member.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section> */}
-
-      {/* CTA Section */}
-      <section className="about-cta">
-        <div className="about-cta-content">
-          <h2>Join Our Learning Community</h2>
-          <p>Start your journey with CourseFlow today and unlock your potential</p>
-          <button className="btn btn-primary btn-large">Get Started Now</button>
         </div>
       </section>
     </div>

@@ -144,6 +144,10 @@ background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   animation: fadeIn 1s ease-out;
+  width: 85%;
+  max-width: 420px;
+  height: 280px;
+  margin: 0 auto;
 }
 
 .story-image img {

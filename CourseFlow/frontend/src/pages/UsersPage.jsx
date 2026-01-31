@@ -106,70 +106,84 @@ const UsersPage = () => {
           </div>
 
           {showForm && (
-            <form onSubmit={handleSubmit} className="crud-form">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={formData.fullName}
-                onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
-                }
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                required
-              />
-              <input
-                type="text"
-                placeholder="Username"
-                value={formData.username}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
-                }
-                required
-              />
-              {!editingId && (
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  required
-                />
-              )}
-              <select
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
-                }
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="Admin">Admin</option>
-                <option value="Instructor">Instructor</option>
-                <option value="Student">Student</option>
-              </select>
-              <button type="submit">
-                {editingId ? "Update User" : "Add User"}
-              </button>
-              <button
-                type="button"
-                className="cancel-btn"
-                onClick={() => setShowForm(false)}
-              >
-                Cancel
-              </button>
-            </form>
-          )}
+            <div className="overlay">
+              <div className="popup-form small-popup">
+                <h2 className="popup-title">
+                  {editingId ? "Edit User" : "Add New User"}
+                </h2>
 
+                <form onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={formData.fullName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullName: e.target.value })
+                    }
+                    required
+                  />
+
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    required
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    value={formData.username}
+                    onChange={(e) =>
+                      setFormData({ ...formData, username: e.target.value })
+                    }
+                    required
+                  />
+
+                  {!editingId && (
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required
+                    />
+                  )}
+
+                  <select
+                    value={formData.role}
+                    onChange={(e) =>
+                      setFormData({ ...formData, role: e.target.value })
+                    }
+                    required
+                  >
+                    <option value="">Select Role</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Instructor">Instructor</option>
+                    <option value="Student">Student</option>
+                  </select>
+
+                  <div className="popup-buttons">
+                    <button type="submit" className="popup-btn primary">
+                      {editingId ? "Update User" : "Add User"}
+                    </button>
+                    <button
+                      type="button"
+                      className="popup-btn secondary"
+                      onClick={() => setShowForm(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
           <table className="users-table">
             <thead>
               <tr>
@@ -191,13 +205,13 @@ const UsersPage = () => {
                   <td>{u.role}</td>
                   <td>
                     <button className="edit-btn" onClick={() => handleEdit(u)}>
-                      <FaEdit /> Edit
+                      <FaEdit /> 
                     </button>
                     <button
                       className="delete-btn"
                       onClick={() => handleDelete(u.id)}
                     >
-                      <FaTrash /> Delete
+                      <FaTrash /> 
                     </button>
                   </td>
                 </tr>

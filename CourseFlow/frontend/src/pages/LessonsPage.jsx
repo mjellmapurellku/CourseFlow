@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import {
-    FaBook,
-    FaEdit,
-    FaPlus,
-    FaSearch,
-    FaTrash,
+  FaBook,
+  FaEdit,
+  FaPlus,
+  FaSearch,
+  FaTrash,
 } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
 import {
-    createLesson,
-    deleteLesson,
-    getCourses,
-    getLessonsByCourse,
-    updateLesson,
+  createLesson,
+  deleteLesson,
+  getCourses,
+  getLessonsByCourse,
+  updateLesson,
 } from "../services/api";
 
 import "../styles/CoursePage.css";
@@ -36,10 +37,20 @@ export default function LessonsPage() {
     courseId: "",
   });
 
-  useEffect(() => {
-    loadCourses();
-    loadLessons();
-  }, []);
+  const location = useLocation();
+  const urlCourseId = new URLSearchParams(location.search).get("courseId");
+
+ useEffect(() => {
+  loadCourses();
+}, []);
+
+useEffect(() => {
+  if (courses.length > 0 && !filterCourseId) {
+    const firstCourseId = courses[0].id;
+    setFilterCourseId(firstCourseId);
+    loadLessons(firstCourseId);
+  }
+}, [courses]);
 
   const loadCourses = async () => {
     try {
@@ -50,22 +61,23 @@ export default function LessonsPage() {
     }
   };
 
-  const loadLessons = async (courseId = null) => {
-    try {
-      const res = courseId
-        ? await getLessonsByCourse(courseId)
-        : await getLessonsByCourse();
+  const loadLessons = async (courseId) => {
+    if (!courseId) {
+      setLessons([]);
+      return;
+    }
 
+    try {
+      const res = await getLessonsByCourse(courseId);
       setLessons(res.data);
     } catch (err) {
       console.error("Error loading lessons:", err);
     }
   };
 
-  const handleFilter = async (courseId) => {
+  const handleFilter = (courseId) => {
     setFilterCourseId(courseId);
-    if (courseId) loadLessons(courseId);
-    else loadLessons();
+    loadLessons(courseId);
   };
 
   const getThumbnail = (url) => {
@@ -128,7 +140,7 @@ export default function LessonsPage() {
       description: "",
       videoUrl: "",
       order: "",
-      courseId: "",
+      courseId: filterCourseId || "",
     });
     setShowForm(true);
   };
@@ -158,7 +170,7 @@ export default function LessonsPage() {
               onChange={(e) => handleFilter(e.target.value)}
               className="filter-select"
             >
-              <option value="">All Courses</option>
+              <option value="">Select Course</option>
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.title}
@@ -173,69 +185,59 @@ export default function LessonsPage() {
 
           {/* Table */}
           <div className="courses-table">
-            {lessons.length > 0 ? (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Order</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Course</th>
-                    <th>Video</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
+          {lessons.length > 0 ? (
+  <table className="users-table">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Course</th>
+        <th>Video</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
 
-                <tbody>
-                  {lessons
-                    .filter((l) =>
-                      l.title.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .map((l) => (
-                      <tr key={l.id}>
-                        <td>{l.order}</td>
-                        <td>{l.title}</td>
-                        <td className="desc-column">{l.description}</td>
-                        <td>
-                          {
-                            courses.find((c) => c.id === l.courseId)
-                              ?.title
-                          }
-                        </td>
-                        <td>
-                          {l.videoUrl ? (
-                            <img
-                              src={getThumbnail(l.videoUrl)}
-                              className="lesson-thumb"
-                              alt="thumb"
-                            />
-                          ) : (
-                            "—"
-                          )}
-                        </td>
+    <tbody>
+      {lessons
+        .filter((l) =>
+          l.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map((l) => (
+          <tr key={l.id}>
+            <td>{l.order}</td>
+            <td>{l.title}</td>
+            <td className="desc-column">{l.description}</td>
+            <td>
+              {courses.find((c) => c.id === l.courseId)?.title}
+            </td>
+            <td>
+              {l.videoUrl ? (
+                <img
+                  src={getThumbnail(l.videoUrl)}
+                  className="lesson-thumb"
+                  alt="thumb"
+                />
+              ) : (
+                "—"
+              )}
+            </td>
+            <td>
+              <button className="edit-btn" onClick={() => handleEdit(l)}>
+                <FaEdit /> 
+              </button>
+              <button className="delete-btn" onClick={() => handleDelete(l.id)}>
+                <FaTrash /> 
+              </button>
+            </td>
+          </tr>
+        ))}
+    </tbody>
+  </table>
+) : (
+  <p>No lessons found.</p>
+)}
 
-                        <td>
-                          <button
-                            className="edit-btn"
-                            onClick={() => handleEdit(l)}
-                          >
-                            <FaEdit />
-                          </button>
-
-                          <button
-                            className="delete-btn"
-                            onClick={() => handleDelete(l.id)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No lessons found.</p>
-            )}
           </div>
 
           {/* Popup Form */}

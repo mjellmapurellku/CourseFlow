@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { FaBars, FaBook, FaSignOutAlt, FaTachometerAlt, FaUsers } from "react-icons/fa";
+import {
+  FaBars,
+  FaBook,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaUsers,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../styles/AdminSidebar.css";
 
@@ -61,7 +67,7 @@ function AdminSidebar({ onSelectSection }) {
           {isOpen && "Manage Courses"}
         </button>
 
-        <button onClick={() => navigate("/admin/lessons")}>
+        <button onClick={() => onSelectSection("lessons")}>
           <FaBook style={{ marginRight: "10px" }} />
           {isOpen && "Manage Lessons"}
         </button>

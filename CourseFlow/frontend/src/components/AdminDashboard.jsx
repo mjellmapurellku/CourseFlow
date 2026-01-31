@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import AdminSidebar from "../components/AdminSidebar";
 import CoursesPage from "../pages/CoursePage";
+import LessonsPage from "../pages/LessonsPage";
 import UsersPage from "../pages/UsersPage";
 import { getUsers } from "../services/api";
 import "../styles/AdminDashboard.css";
@@ -19,9 +20,9 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [chartData, setChartData] = useState([]);
-  const [activeSection, setActiveSection] = useState("dashboard"); // 👈 New state
+  const [activeSection, setActiveSection] = useState("dashboard"); 
 
-  const COLORS = ["#4CAF50", "#2196F3", "#FF9800"]; // Students, Instructors, Courses
+  const COLORS = ["#4CAF50", "#2196F3", "#FF9800"]; 
 
   useEffect(() => {
     loadUsers();
@@ -48,17 +49,17 @@ const AdminDashboard = () => {
 
 
   // Prepare chart data
-  useEffect(() => {
-    const studentCount = users.filter((u) => u.role === "Student").length;
-    const instructorCount = users.filter((u) => u.role === "Instructor").length;
-    const courseCount = courses.length;
+useEffect(() => {
+  const studentCount = users.filter((u) => u.role === 2).length;
+  const instructorCount = users.filter((u) => u.role === 3).length;
+  const courseCount = courses.length;
 
-    setChartData([
-      { name: "Students", value: studentCount },
-      { name: "Instructors", value: instructorCount },
-      { name: "Courses", value: courseCount },
-    ]);
-  }, [users, courses]);
+  setChartData([
+    { name: "Students", value: studentCount },
+    { name: "Instructors", value: instructorCount },
+    { name: "Courses", value: courseCount },
+  ]);
+}, [users, courses]);
 
   return (
     <div className="dashboard">
@@ -119,6 +120,7 @@ const AdminDashboard = () => {
 
         {activeSection === "users" && <UsersPage />}
         {activeSection === "courses" && <CoursesPage />}
+        {activeSection === "lessons" && <LessonsPage />}
       </main>
     </div>
   );
