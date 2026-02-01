@@ -89,3 +89,7 @@ export const getTrialStatus = (userId) =>
 
 export const completeLesson = (courseId) =>
   api.post(`/Enrollment/complete-lesson?courseId=${courseId}`);
+
+// ================= RECOMMENDATIONS =================
+export const getRecommendations = () =>
+  api.get("/recommendations");

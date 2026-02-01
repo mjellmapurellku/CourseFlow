@@ -11,6 +11,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import Footer from "./components/Footer";
 import Navbar from "./components/NavBar";
 
+// import Chatbot from "./components/Chatbot";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import CourseDetails from "./pages/CourseDetails";
@@ -129,6 +130,7 @@ function AppContent() {
 function App() {
   return (
     <Router>
+      {/* <Chatbot /> */}
       <AppContent />
     </Router>
   );
